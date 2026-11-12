@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Cogsyne — Founder Readiness',
-  description: 'A connected founder readiness workspace for qualification, evidence, sourcing, and requirements.',
+  title: 'Cogsyne — Founder Readiness Demo',
+  description: 'Explore a demo founder readiness workspace for qualification, evidence, sourcing, and requirements. Sample data only; no factory qualification is implied.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   colorScheme: 'light',
-  themeColor: '#f7f9fb',
+  themeColor: '#f6f5fc',
   width: 'device-width',
   initialScale: 1,
 }

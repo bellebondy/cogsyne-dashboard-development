@@ -13,10 +13,10 @@ export type Factory = {
 }
 
 export const factories: Factory[] = [
-  { id: "F1", name: "Qualification", eyebrow: "PROVIDER CAPABILITIES", description: "Qualification criteria and provider records", status: "In review", progress: 68, owner: "Team North", color: "mint" },
-  { id: "F6", name: "Evidence", eyebrow: "EVIDENCE LIBRARY", description: "Validated evidence with clear traceability", status: "Ready", progress: 84, owner: "Team North", color: "blue" },
-  { id: "F11", name: "Sourcing", eyebrow: "GAP RESOLUTION", description: "Recommendations to close readiness gaps", status: "Needs attention", progress: 42, owner: "Team South", color: "amber" },
-  { id: "F12", name: "Founder Readiness", eyebrow: "READINESS SUMMARY", description: "A connected view of founder readiness", status: "In review", progress: 71, owner: "Team South", color: "violet" },
+  { id: "F1", name: "Qualification", eyebrow: "PROVIDER CAPABILITIES", description: "Qualification criteria and provider records", status: "In review", progress: 68, owner: "Team North", color: "purple" },
+  { id: "F6", name: "Evidence", eyebrow: "EVIDENCE LIBRARY", description: "Validated evidence with clear traceability", status: "Ready", progress: 84, owner: "Team North", color: "teal" },
+  { id: "F11", name: "Sourcing", eyebrow: "GAP RESOLUTION", description: "Recommendations to close readiness gaps", status: "Needs attention", progress: 42, owner: "Team South", color: "coral" },
+  { id: "F12", name: "Founder Readiness", eyebrow: "READINESS SUMMARY", description: "A connected view of founder readiness", status: "In review", progress: 71, owner: "Team South", color: "yellow" },
 ]
 
 export const qualificationRecords = [

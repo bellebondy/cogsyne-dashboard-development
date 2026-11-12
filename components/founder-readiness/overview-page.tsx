@@ -2,13 +2,14 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight, CircleHelp, Clock3, FileText,
 import { activityItems, factories, type FactoryId } from "@/lib/founder-demo-data"
 import type { ViewId } from "./sidebar"
 import { StatusBadge } from "./shared"
+import { ReadinessTrend } from "./readiness-trend"
 
 export function OverviewPage({ onNavigate, onDemo, searchTerm }: { onNavigate: (id: ViewId) => void; onDemo: () => void; searchTerm: string }) {
   const visibleFactories = factories.filter((factory) => `${factory.id} ${factory.name} ${factory.description} ${factory.owner}`.toLowerCase().includes(searchTerm.toLowerCase()))
   return (
     <div className="page-stack">
       <div className="welcome-row">
-        <div><div className="overline">MONDAY, NOVEMBER 9, 2026 <span className="demo-chip">DEMO DATA</span></div><h1>Good morning, Jordan<span className="title-dot">.</span></h1><p className="page-subtitle">Here&apos;s the latest on your founder readiness workspace.</p></div>
+        <div><div className="overline">THURSDAY, NOVEMBER 12, 2026 <span className="demo-chip">DEMO DATA</span></div><h1>Good morning, Jordan<span className="title-dot">.</span></h1><p className="page-subtitle">Here&apos;s the latest on your founder readiness workspace.</p></div>
         <button className="button button-dark" onClick={onDemo}><Plus size={16} /> Explore guided demo</button>
       </div>
       <section className="metric-grid" aria-label="Enterprise metrics">
@@ -20,7 +21,7 @@ export function OverviewPage({ onNavigate, onDemo, searchTerm }: { onNavigate: (
       <section className="section-block">
         <div className="section-heading"><div><div className="overline">CONNECTED WORKFLOWS</div><h2>Factory overview</h2></div><button className="text-button" onClick={() => onNavigate("F12")}>View readiness summary <ArrowRight size={15} /></button></div>
         <div className="factory-grid">
-          {visibleFactories.map((factory) => <button className="factory-card" key={factory.id} onClick={() => onNavigate(factory.id)}>
+          {visibleFactories.map((factory) => <button className={`factory-card factory-${factory.color}`} key={factory.id} onClick={() => onNavigate(factory.id)}>
             <div className="factory-card-top"><span className={`factory-symbol ${factory.color}`}>{factory.id}</span><span className="card-arrow"><ArrowUpRight size={16} /></span></div>
             <div className="overline">{factory.eyebrow}</div><h3>{factory.name}</h3><p>{factory.description}</p>
             <div className="factory-progress-row"><span>{factory.progress}% complete</span><StatusBadge status={factory.status} /></div>
@@ -29,8 +30,9 @@ export function OverviewPage({ onNavigate, onDemo, searchTerm }: { onNavigate: (
           </button>)}
         </div>
       </section>
-      <section className="overview-lower-grid">
+      <section className="overview-lower-grid" aria-label="Readiness insights and factory workflow">
         <WorkflowMap onNavigate={onNavigate} />
+        <ReadinessTrend />
         <ActivityFeed />
       </section>
       <section className="attention-banner">

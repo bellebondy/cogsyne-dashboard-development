@@ -22,13 +22,13 @@ export function Sidebar({ active, onNavigate, onDemo }: { active: ViewId; onNavi
       </button>
       <div className="workspace-switcher">
         <span className="workspace-avatar">A</span>
-        <span className="workspace-copy"><b>Atlas Biotech</b><small>Enterprise workspace</small></span>
+        <span className="workspace-copy"><b>Atlas Biotech</b><small>DEMO WORKSPACE</small></span>
         <ArrowUpRight size={15} aria-hidden="true" />
       </div>
       <div className="nav-section-label">WORKSPACE</div>
       <nav aria-label="Main navigation" className="side-nav">
         {links.map(({ id, label, icon: Icon, number }) => (
-          <button key={id} onClick={() => onNavigate(id)} className={`nav-link ${active === id ? "active" : ""}`} aria-current={active === id ? "page" : undefined}>
+          <button key={id} onClick={() => onNavigate(id)} className={`nav-link ${active === id ? "active" : ""}`} data-factory={number} aria-current={active === id ? "page" : undefined}>
             <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
             <span>{label}</span>
             {number && <span className="nav-code">{number}</span>}
@@ -46,7 +46,7 @@ export function Sidebar({ active, onNavigate, onDemo }: { active: ViewId; onNavi
       <button className="nav-link quiet"><LifeBuoy size={17} strokeWidth={1.8} /><span>Help & support</span></button>
       <div className="profile-row">
         <span className="profile-avatar">JM</span>
-        <span className="profile-copy"><b>Jordan Miller</b><small>Workspace admin</small></span>
+        <span className="profile-copy"><b>Jordan Miller</b><small>DEMO PROFILE · ADMIN</small></span>
         <span className="profile-menu">•••</span>
       </div>
     </aside>

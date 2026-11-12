@@ -12,5 +12,5 @@ export function DataTable({ headers, children, empty = "No matching records" }: 
 }
 
 export function SectionHeader({ eyebrow, title, description, action }: { eyebrow: string; title: string; description: string; action?: React.ReactNode }) {
-  return <div className="detail-heading"><div><div className="overline">{eyebrow}</div><h1>{title}</h1><p className="page-subtitle">{description}</p></div>{action}</div>
+  return <div className="detail-heading"><div><div className="overline section-eyebrow">{eyebrow}<span className="demo-chip">DEMO DATA</span></div><h1>{title}</h1><p className="page-subtitle">{description}</p></div>{action}</div>
 }
