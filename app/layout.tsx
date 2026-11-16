@@ -4,7 +4,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Cogsyne — Factory Workflow Demo',
-  description: 'Explore the Cogsyne F4, F6, Human Decision, F1, and F11 workflow using clearly labeled simulated data. Preview mode makes no factory API calls.',
+  description: 'Explore Cogsyne’s five-step factory workflow with server-proxied backend responses and clearly separated simulated scenario data.',
   generator: 'v0.app',
   icons: {
     icon: [

@@ -32,7 +32,7 @@ export function DemoModeBanner() {
   return (
     <div className="global-demo-banner" role="status">
       <strong>DEMO MODE</strong>
-      <span>Only SIMULATED scenario fixtures are available. LIVE means an actual response from a running factory service; none are connected and this preview makes no API calls.</span>
+      <span>Dashboard scenario fixtures remain SIMULATED. Guided Demo shows LIVE results only when Julian&apos;s backend returns an actual response; scenario data is labeled separately.</span>
     </div>
   )
 }

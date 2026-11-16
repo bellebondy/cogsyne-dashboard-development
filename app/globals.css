@@ -863,6 +863,8 @@ h2, h3 { color: var(--ink); }
 .scenario-fact-label { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; color: #77748b; font-size: 9px; font-weight: 650; }
 .scenario-fact p { margin: 7px 0 0; color: #45415d; font-size: 10px; line-height: 1.6; }
 .step-guidance { color: #74718a; font-size: 10px; line-height: 1.6; }
+.backend-outcome { margin-top: 10px; border: 1px solid #e2dcfb; border-radius: 10px; padding: 11px; background: #faf9ff; }
+.backend-outcome p { margin: 7px 0 0; color: #45415d; font-size: 10px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
 .step-human-decision .decision-options { grid-template-columns: 1fr; }
 .guided-detail-link { margin-top: 13px; }
 .api-details { margin-top: 16px; border-top: 1px solid #eeebf5; padding-top: 12px; }
@@ -894,6 +896,33 @@ h2, h3 { color: var(--ink); }
 .factory-health-panel.compact .health-list { grid-template-columns: 1fr; }
 .factory-health-panel.compact .health-row { padding: 7px; }
 .factory-health-panel.compact .health-status { font-size: 7px; }
+.guided-detail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin-top: 13px; }
+.guided-detail-actions .guided-detail-link { margin-top: 0; }
+.guided-step.failed .guided-step-number { color: #a8435b; background: #fff0f2; }
+.health-panel-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 7px; }
+.health-refresh { min-height: 31px; padding: 0 9px; font-size: 9px; }
+.health-refresh svg { flex: 0 0 auto; }
+.health-icon-online { color: #148b7e; background: #e4faf6; }
+.health-icon-offline { color: #b64e64; background: #fff0f2; }
+.health-status-online { color: #148b7e; }
+.health-status-offline { color: #b64e64; }
+.health-api-summary { display: grid; gap: 8px; margin-top: 12px; }
+.api-request-status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-radius: 8px; padding: 8px; color: #6c6981; background: #f7f6fb; font-size: 8px; }
+.api-request-status code { flex: 1 1 auto; min-width: 130px; color: #504b68; font-size: 8px; overflow-wrap: anywhere; }
+.api-request-status strong { border-radius: 999px; padding: 3px 6px; color: #78758a; background: #eeedf3; font-size: 8px; }
+.api-request-status.success strong { color: #148b7e; background: #e4faf6; }
+.api-request-status.error strong { color: #a8435b; background: #fff0f2; }
+.api-response-field { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; color: #57536c; font-size: 9px; line-height: 1.55; }
+.api-response-field > strong { color: #77748b; font-size: 8px; text-transform: uppercase; letter-spacing: .35px; }
+.api-response-field p { margin: 0; overflow-wrap: anywhere; }
+.api-response-field pre, .api-json-details pre, .config-response-details pre, .simulated-response-json { max-height: 240px; overflow: auto; border: 1px solid #eeebf5; border-radius: 8px; padding: 9px; color: #4d4965; background: #fbfaff; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.api-response-field pre, .api-json-details pre, .config-response-details pre { margin: 0; }
+.api-error-message { color: #a8435b !important; overflow-wrap: anywhere; }
+.api-json-details, .config-response-details { margin-top: 10px; border-top: 1px solid #eeebf5; padding-top: 8px; }
+.api-json-details summary, .config-response-details summary { color: #5d48d4; font-size: 8px; font-weight: 650; cursor: pointer; }
+.api-json-details pre, .config-response-details pre { margin-top: 8px; }
+.config-response-details > div { display: grid; gap: 7px; margin-top: 8px; }
+.api-details-hint { overflow-wrap: anywhere; }
 
 @media (max-width: 1000px) {
   .workflow-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -928,6 +957,9 @@ h2, h3 { color: var(--ink); }
   .decision-options, .api-details-grid { grid-template-columns: 1fr; }
   .decision-footer .button { width: 100%; margin-left: 0; }
   .health-list { grid-template-columns: 1fr; }
+  .health-panel-actions { justify-content: flex-start; }
+  .guided-detail-actions { align-items: stretch; }
+  .guided-detail-actions .button { width: 100%; justify-content: center; }
   .guided-step { align-items: flex-start; flex-wrap: wrap; }
   .guided-step-copy { flex: 1 1 calc(100% - 45px); }
   .guided-step-status { margin-left: 37px; }
