@@ -19,6 +19,7 @@ export default function DashboardApp() {
   const [currentStep, setCurrentStep] = useState(0)
   const [stepResults, setStepResults] = useState<Partial<Record<number, StepExecutionResult>>>({})
   const workflowStateRef = useRef<JsonObject>({})
+  const workflowStateSnapshotsRef = useRef<Partial<Record<number, JsonObject>>>({})
   const [disposition, setDisposition] = useState<HumanDisposition | null>(null)
   const [runMessage, setRunMessage] = useState("Ready to connect to Julian's demo backend.")
   const [configRequest, setConfigRequest] = useState<ApiRequestResult | null>(null)
@@ -90,9 +91,15 @@ export default function DashboardApp() {
       return false
     }
 
+    const stateBeforeStep = index === 0
+      ? {}
+      : workflowStateSnapshotsRef.current[index - 1] ?? workflowStateRef.current
     const stateForRequest = index === 2 && disposition
-      ? { ...workflowStateRef.current, humanDecision: disposition }
-      : workflowStateRef.current
+      ? { ...stateBeforeStep, humanDecision: disposition }
+      : stateBeforeStep
+
+    setCurrentStep(index)
+    setRunMessage(`Running ${scenarioSteps[index].title} against Julian's backend...`)
     const request = await callDemoApi(`step/${index + 1}`, "POST", stateForRequest)
     const payload = isJsonObject(request.payload) ? request.payload : null
     const successful = isSuccessfulStepResponse(payload, request.ok)
@@ -109,7 +116,12 @@ export default function DashboardApp() {
       return next
     })
 
+    for (const key of Object.keys(workflowStateSnapshotsRef.current)) {
+      if (Number(key) >= index) delete workflowStateSnapshotsRef.current[Number(key)]
+    }
+
     if (!successful) {
+      workflowStateRef.current = stateBeforeStep
       setCurrentStep(index)
       const status = request.httpStatus === null ? "No HTTP response" : `HTTP ${request.httpStatus}`
       setRunMessage(`${scenarioSteps[index].title} stopped (${status} · ${execution.backendStatus}). ${request.error ?? "The backend reported a failed or blocked step; downstream steps were not run."}`)
@@ -117,6 +129,7 @@ export default function DashboardApp() {
     }
 
     const updatedState = getUpdatedWorkflowState(payload, stateForRequest)
+    workflowStateSnapshotsRef.current[index] = updatedState
     workflowStateRef.current = updatedState
     setCurrentStep(Math.min(index + 1, scenarioSteps.length - 1))
     setRunMessage(`${scenarioSteps[index].title} completed with a backend response (${request.httpStatus ? `HTTP ${request.httpStatus}` : "status unavailable"}).`)
@@ -177,6 +190,7 @@ export default function DashboardApp() {
     setCurrentStep(0)
     setStepResults({})
     workflowStateRef.current = {}
+    workflowStateSnapshotsRef.current = {}
     setDisposition(null)
     setRunMessage("Workflow reset in this browser. No backend reset endpoint is provided; the next run starts with an empty state object.")
     setActive("demo")
@@ -213,6 +227,8 @@ export default function DashboardApp() {
         onRefreshServices={() => { void refreshServices() }}
         busy={busyAction !== null}
         refreshing={busyAction === "checking"}
+        runningAll={busyAction === "all"}
+        runningStep={typeof busyAction === "number" ? busyAction : null}
       />
   ) : active === "decision" ? (
     <HumanDecisionPage disposition={disposition} onDispositionChange={changeDisposition} onNavigate={setActive} />

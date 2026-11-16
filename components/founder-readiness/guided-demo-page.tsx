@@ -4,7 +4,7 @@ import type { ApiRequestResult, StepExecutionResult } from "@/lib/demo-api"
 import { ApiResponseDetails, FactoryHealthPanel, StepScenarioSummary } from "./scenario-components"
 import { DataSourceBadge, SectionHeader } from "./shared"
 
-export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDispositionChange, onNavigate, onSelectStep, onRunNext, onRunStep, onRunAll, onReset, runMessage, searchTerm, stepResults, configRequest, healthRequest, configPayload, healthPayload, onRefreshServices, busy, refreshing }: {
+export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDispositionChange, onNavigate, onSelectStep, onRunNext, onRunStep, onRunAll, onReset, runMessage, searchTerm, stepResults, configRequest, healthRequest, configPayload, healthPayload, onRefreshServices, busy, refreshing, runningAll, runningStep }: {
   currentStep: number
   completedSteps: number[]
   disposition: HumanDisposition | null
@@ -25,6 +25,8 @@ export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDis
   onRefreshServices: () => void
   busy: boolean
   refreshing: boolean
+  runningAll: boolean
+  runningStep: number | null
 }) {
   const active = scenarioSteps[currentStep]
   const activeResult = stepResults[currentStep]
@@ -33,8 +35,8 @@ export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDis
 
   return (
     <div className="page-stack">
-      <SectionHeader eyebrow="GUIDED DEMO · FIVE STEPS" title="A performance gap leads to a talent decision." description="Run F4 → F6 → Human Decision → F1 → F11 through Julian&apos;s backend. Factory results and scenario data are shown separately." />
-      <section className="guided-demo-hero"><div className="guided-demo-copy"><DataSourceBadge source="SIMULATED" /><h2>Run the workflow against the connected demo backend.</h2><p>Step requests are proxied server-side. Only actual backend responses are marked LIVE; any scenario data in a response stays labeled SIMULATED.</p></div><div className="guided-controls"><button className="button button-dark" onClick={onRunNext} disabled={busy}><Play size={14} /> Run Next Step</button><button className="button button-outline" onClick={onRunAll} disabled={busy}><CheckCircle2 size={14} /> Run All</button><button className="button button-quiet" onClick={onReset} disabled={busy}><RotateCcw size={14} /> Reset</button></div></section>
+      <SectionHeader eyebrow="GUIDED DEMO · FIVE STEPS" title="A performance gap leads to a talent decision." description="Run F4 → F6 → Human Decision → F1 → F11 through Julian's backend when configured. Factory results and scenario data are shown separately." />
+      <section className="guided-demo-hero"><div className="guided-demo-copy"><DataSourceBadge source="SIMULATED" /><h2>Run the workflow against Julian&apos;s backend when configured.</h2><p>Step requests are proxied server-side. Only actual backend responses are marked LIVE; any scenario data in a response stays labeled SIMULATED.</p></div><div className="guided-controls"><button className="button button-dark" onClick={onRunNext} disabled={busy} aria-busy={runningStep !== null}><Play size={14} /> {runningStep !== null ? "Running step…" : "Run Next Step"}</button><button className="button button-outline" onClick={onRunAll} disabled={busy} aria-busy={runningAll}><CheckCircle2 size={14} /> {runningAll ? "Running all…" : "Run All"}</button><button className="button button-quiet" onClick={onReset} disabled={busy}><RotateCcw size={14} /> Reset</button></div></section>
       <div className="run-progress" role="progressbar" aria-label="Guided demo progress" aria-valuemin={0} aria-valuemax={scenarioSteps.length} aria-valuenow={completedCount}><span style={{ width: `${(completedCount / scenarioSteps.length) * 100}%` }} /></div>
       <p className="demo-run-message" role="status">{runMessage}</p>
       <div className="guided-layout">
@@ -60,8 +62,8 @@ export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDis
           <p className="panel-intro">{active.description}</p>
           <StepScenarioSummary stepId={active.id} disposition={disposition} onDispositionChange={onDispositionChange} result={activeResult} />
           <div className="guided-detail-actions">
-            <button className="button button-dark" onClick={() => onRunStep(currentStep)} disabled={busy}>
-              <Play size={14} /> {activeResult?.successful ? "Run this step again" : "Run this step"}
+            <button className="button button-dark" onClick={() => onRunStep(currentStep)} disabled={busy} aria-busy={runningStep === currentStep || runningAll}>
+              <Play size={14} /> {runningStep === currentStep || runningAll ? "Running step…" : activeResult?.successful ? "Run this step again" : "Run this step"}
             </button>
             {active.view !== "demo" && <button className="text-button guided-detail-link" onClick={() => onNavigate(active.view)}>Open {active.title} detail <ArrowRight size={14} /></button>}
           </div>
