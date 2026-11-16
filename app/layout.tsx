@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Cogsyne — Founder Readiness Demo',
-  description: 'Explore a demo founder readiness workspace for qualification, evidence, sourcing, and requirements. Sample data only; no factory qualification is implied.',
+  title: 'Cogsyne — Factory Workflow Demo',
+  description: 'Explore the Cogsyne F4, F6, Human Decision, F1, and F11 workflow using clearly labeled simulated data. Preview mode makes no factory API calls.',
   generator: 'v0.app',
   icons: {
     icon: [

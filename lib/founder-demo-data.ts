@@ -1,57 +1,53 @@
-export type FactoryId = "F1" | "F6" | "F11" | "F12"
-export type Status = "Ready" | "In review" | "Needs attention" | "Draft" | "Verified" | "Open" | "Complete"
+export type FactoryId = "F4" | "F6" | "F1" | "F11"
+export type DemoStepId = FactoryId | "decision"
+export type ViewId = "overview" | "demo" | "decision" | FactoryId
+export type DataSource = "SIMULATED" | "LIVE"
+export type HumanDisposition = "proceed" | "request-evidence" | "hold"
 
 export type Factory = {
   id: FactoryId
   name: string
-  eyebrow: string
+  team: "Team 1" | "Team 2"
+  role: string
   description: string
-  status: Status
-  progress: number
-  owner: string
-  color: string
+  color: "purple" | "teal" | "coral" | "yellow"
 }
 
 export const factories: Factory[] = [
-  { id: "F1", name: "Qualification", eyebrow: "PROVIDER CAPABILITIES", description: "Qualification criteria and provider records", status: "In review", progress: 68, owner: "Team North", color: "purple" },
-  { id: "F6", name: "Evidence", eyebrow: "EVIDENCE LIBRARY", description: "Validated evidence with clear traceability", status: "Ready", progress: 84, owner: "Team North", color: "teal" },
-  { id: "F11", name: "Sourcing", eyebrow: "GAP RESOLUTION", description: "Recommendations to close readiness gaps", status: "Needs attention", progress: 42, owner: "Team South", color: "coral" },
-  { id: "F12", name: "Founder Readiness", eyebrow: "READINESS SUMMARY", description: "A connected view of founder readiness", status: "In review", progress: 71, owner: "Team South", color: "yellow" },
+  { id: "F4", name: "Project", team: "Team 2", role: "Initiative definition", description: "Set the objective, baseline, and target for the scenario.", color: "purple" },
+  { id: "F6", name: "Performance", team: "Team 2", role: "Performance measurement", description: "Compare the simulated observed result against the target.", color: "teal" },
+  { id: "F1", name: "People Assurance", team: "Team 1", role: "Qualification assessment", description: "Assess a simulated qualification claim against the scenario evidence.", color: "coral" },
+  { id: "F11", name: "Talent Assurance & Marketplace", team: "Team 1", role: "Talent recommendation", description: "Show a recommendation, execution boundary, and Recognition fixture.", color: "yellow" },
 ]
 
-export const qualificationRecords = [
-  { name: "Clinical manufacturing", category: "Operations", criteria: "GMP-aligned facility, 3+ commercial batches", owner: "Team North", status: "Verified" as Status, updated: "Oct 24, 2026" },
-  { name: "Regulatory strategy", category: "Regulatory", criteria: "FDA pathway and submission plan documented", owner: "Team North", status: "In review" as Status, updated: "Oct 21, 2026" },
-  { name: "Quality systems", category: "Quality", criteria: "QMS scope, audit history, and CAPA process", owner: "Team South", status: "Needs attention" as Status, updated: "Oct 19, 2026" },
-  { name: "Analytical development", category: "Technical", criteria: "Validated methods with transfer capability", owner: "Team North", status: "Verified" as Status, updated: "Oct 17, 2026" },
-  { name: "Supply continuity", category: "Operations", criteria: "Documented continuity and second-source plan", owner: "Team South", status: "Draft" as Status, updated: "Oct 12, 2026" },
+export const demoScenario = {
+  objective: "Reduce average case handling time while preserving human review.",
+  baselineMinutes: 10,
+  targetMinutes: 8,
+  observedMinutes: 9,
+  qualificationClaim: "The team can consistently meet the 8-minute-per-case target while preserving required review.",
+  assessment: "The claim is not established by this scenario fixture: the simulated observation is 9 minutes per case against an 8-minute target. This is not a certification or a live factory assessment.",
+  recommendation: "Route the talent recommendation for human review. Do not execute a hire or assignment.",
+  expectedExecutionDenial: "HTTP 403 is the expected execution-denial outcome in this scenario. It is not an observed response; no request has been sent.",
+  recognitionRecord: {
+    reference: "SIM-REC-001",
+    type: "Recognition",
+    capability: "Case-efficiency improvement capability",
+    status: "SIMULATED scenario record",
+    guardrail: "Recognition is NOT a hire or assignment.",
+  },
+} as const
+
+export const humanDispositions: { value: HumanDisposition; label: string; description: string }[] = [
+  { value: "proceed", label: "Proceed to People Assurance", description: "Carry the finding forward for assessment. This does not authorize execution." },
+  { value: "request-evidence", label: "Request more evidence", description: "Keep the talent recommendation pending while evidence is gathered." },
+  { value: "hold", label: "Hold for review", description: "Pause the scenario and leave the disposition open for further review." },
 ]
 
-export const evidenceRecords = [
-  { name: "GMP facility assessment", source: "Northstar Bio · Site audit", type: "Assessment", status: "Verified" as Status, date: "Oct 24, 2026", linked: "F1 · Clinical manufacturing" },
-  { name: "Regulatory pathway memo", source: "Internal · Regulatory team", type: "Memo", status: "In review" as Status, date: "Oct 21, 2026", linked: "F1 · Regulatory strategy" },
-  { name: "Analytical method report", source: "Meridian Labs · Technical file", type: "Report", status: "Verified" as Status, date: "Oct 17, 2026", linked: "F1 · Analytical development" },
-  { name: "Founder team capability map", source: "Internal · Founder team", type: "Framework", status: "Draft" as Status, date: "Oct 15, 2026", linked: "F12 · Team" },
-  { name: "Supply continuity questionnaire", source: "Northstar Bio · Questionnaire", type: "Questionnaire", status: "Open" as Status, date: "Oct 12, 2026", linked: "F11 · Continuity plan" },
-]
-
-export const sourcingGaps = [
-  { name: "Second-source strategy", impact: "High", recommendation: "Identify an alternate qualified supplier for key materials.", owner: "Team South", status: "Open" as Status, due: "Nov 14, 2026" },
-  { name: "QMS audit documentation", impact: "High", recommendation: "Request the latest audit summary and CAPA evidence.", owner: "Team North", status: "In review" as Status, due: "Nov 18, 2026" },
-  { name: "Regulatory submission owner", impact: "Medium", recommendation: "Confirm accountable lead and target submission window.", owner: "Team South", status: "Open" as Status, due: "Nov 22, 2026" },
-  { name: "Founder commercial experience", impact: "Medium", recommendation: "Add a supporting record for commercial launch experience.", owner: "Team South", status: "Complete" as Status, due: "Nov 06, 2026" },
-]
-
-export const readinessRequirements = [
-  { name: "Qualified provider for clinical manufacturing", source: "F1 · Clinical manufacturing", status: "Complete" as Status, evidence: "GMP facility assessment" },
-  { name: "Regulatory pathway and accountable owner", source: "F1 · Regulatory strategy", status: "In review" as Status, evidence: "Regulatory pathway memo" },
-  { name: "Quality systems and audit readiness", source: "F1 · Quality systems", status: "Open" as Status, evidence: "Audit summary requested" },
-  { name: "Supply continuity plan", source: "F11 · Second-source strategy", status: "Open" as Status, evidence: "Recommendation in progress" },
-  { name: "Founder team capability evidence", source: "F6 · Founder team map", status: "Complete" as Status, evidence: "Founder team capability map" },
-]
-
-export const activityItems = [
-  { initials: "JT", color: "teal", title: "Evidence validated", detail: "GMP facility assessment · F6", time: "24 min ago" },
-  { initials: "ML", color: "blue", title: "Qualification updated", detail: "Regulatory strategy · F1", time: "2 hours ago" },
-  { initials: "AR", color: "violet", title: "Sourcing gap identified", detail: "Second-source strategy · F11", time: "Yesterday" },
+export const scenarioSteps: { id: DemoStepId; title: string; subtitle: string; description: string; view: ViewId }[] = [
+  { id: "F4", title: "F4 Project", subtitle: "Team 2 · Project", description: "Define the initiative objective and 10-to-8-minute target.", view: "F4" },
+  { id: "F6", title: "F6 Performance", subtitle: "Team 2 · Performance", description: "Observe 9 minutes per case and make the 1-minute gap visible.", view: "F6" },
+  { id: "decision", title: "Human Decision", subtitle: "Human disposition", description: "Choose a local demo disposition before proceeding downstream.", view: "decision" },
+  { id: "F1", title: "F1 People Assurance", subtitle: "Team 1 · People Assurance", description: "Assess the simulated qualification claim against the finding.", view: "F1" },
+  { id: "F11", title: "F11 Talent", subtitle: "Team 1 · Talent Assurance & Marketplace", description: "Show the recommendation, expected denial, and Recognition fixture.", view: "F11" },
 ]

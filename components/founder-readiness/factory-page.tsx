@@ -1,80 +1,69 @@
-import { useMemo, useState } from "react"
-import { ArrowDownToLine, ArrowRight, Check, CheckCircle2, ChevronDown, CircleHelp, ExternalLink, FilePlus2, Filter, Plus, Search, ShieldCheck, Sparkles, TriangleAlert } from "lucide-react"
-import { evidenceRecords, factories, qualificationRecords, readinessRequirements, sourcingGaps, type FactoryId, type Status } from "@/lib/founder-demo-data"
-import { DataTable, SectionHeader, StatusBadge } from "./shared"
-import type { ViewId } from "./sidebar"
+import { ArrowRight, CircleHelp, ShieldCheck, Sparkles } from "lucide-react"
+import { demoScenario, type FactoryId, type HumanDisposition, type ViewId } from "@/lib/founder-demo-data"
+import { PerformanceScenarioChart } from "./performance-scenario-chart"
+import { DataSourceBadge, ScenarioMetric, SectionHeader } from "./shared"
 
-export function FactoryPage({ factoryId, searchTerm, onNavigate, onDemo }: { factoryId: FactoryId; searchTerm: string; onNavigate: (id: ViewId) => void; onDemo: () => void }) {
-  if (factoryId === "F1") return <QualificationPage searchTerm={searchTerm} />
-  if (factoryId === "F6") return <EvidencePage searchTerm={searchTerm} />
-  if (factoryId === "F11") return <SourcingPage searchTerm={searchTerm} />
-  return <ReadinessPage searchTerm={searchTerm} onNavigate={onNavigate} onDemo={onDemo} />
+export function FactoryPage({ factoryId, disposition, onNavigate }: { factoryId: FactoryId; disposition: HumanDisposition | null; onNavigate: (id: ViewId) => void }) {
+  if (factoryId === "F4") return <ProjectPage onNavigate={onNavigate} />
+  if (factoryId === "F6") return <PerformancePage onNavigate={onNavigate} />
+  if (factoryId === "F1") return <PeopleAssurancePage disposition={disposition} onNavigate={onNavigate} />
+  return <TalentPage disposition={disposition} onNavigate={onNavigate} />
 }
 
-function QualificationPage({ searchTerm }: { searchTerm: string }) {
-  const [filter, setFilter] = useState("All criteria")
-  const rows = useMemo(() => qualificationRecords.filter((row) => `${row.name} ${row.category} ${row.owner} ${row.status}`.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === "All criteria" || row.status === filter)), [searchTerm, filter])
-  return <div className="page-stack"><SectionHeader eyebrow="F1 · PROVIDER CAPABILITIES" title="Qualification" description="Review provider capabilities against the criteria that inform founder readiness." action={<button className="button button-outline"><ArrowDownToLine size={15} /> Export records</button>} />
-    <div className="detail-stats"><SmallStat label="Criteria tracked" value="08" caption="Across 4 capability groups" /><SmallStat label="Verified" value="04" caption="Supporting records attached" tone="good" /><SmallStat label="In review" value="02" caption="Owner review underway" tone="blue" /><SmallStat label="Needs attention" value="02" caption="Follow-up recommended" tone="warning" /></div>
-    <div className="split-grid qualification-grid"><section className="panel panel-pad"><div className="panel-heading"><div><div className="overline">CAPABILITY COVERAGE</div><h2>Provider profile</h2></div><span className="score-circle">68<span>%</span></span></div><p className="panel-intro">Current sample coverage across provider qualification criteria.</p>
-      <div className="capability-list"><Capability name="Manufacturing & operations" percent={82} color="mint" hint="4 criteria · 3 verified" /><Capability name="Regulatory readiness" percent={58} color="blue" hint="3 criteria · 1 in review" /><Capability name="Quality systems" percent={46} color="amber" hint="4 criteria · 2 open" /><Capability name="Technical capabilities" percent={86} color="violet" hint="3 criteria · 2 verified" /></div>
-      <div className="info-callout"><CircleHelp size={16} /><span>Qualification is a sample workflow view. Criteria status is not an independent certification.</span></div>
-    </section><section className="panel panel-pad criteria-panel"><div className="panel-heading"><div><div className="overline">QUALIFICATION FRAMEWORK</div><h2>Criteria in scope</h2></div><button className="icon-button" aria-label="More about criteria"><ChevronDown size={16} /></button></div><div className="criteria-list">{["Provider capability and fit", "Quality management and auditability", "Regulatory pathway alignment", "Operational resilience"].map((item, i) => <div className="criteria-item" key={item}><span className={`criteria-icon ${i < 2 ? "done" : "pending"}`}>{i < 2 ? <Check size={15} /> : <CircleHelp size={15} />}</span><div><b>{item}</b><small>{i < 2 ? "Evidence linked · reviewed" : "Supporting records requested"}</small></div><span className="criteria-count">{[3, 2, 2, 1][i]} items</span></div>)}</div><button className="text-button criteria-link">View qualification guidance <ArrowRight size={14} /></button></section></div>
-    <section className="panel table-panel"><TableTitle eyebrow="PROVIDER RECORDS" title="Qualification criteria" count={`${rows.length} records`}><FilterSelect value={filter} onChange={setFilter} options={["All criteria", "Verified", "In review", "Needs attention", "Draft"]} /></TableTitle>
-      <DataTable headers={["Capability", "Category", "Qualification criteria", "Owner", "Status", "Last updated"]}>{rows.map((row) => <tr key={row.name}><td><b className="row-title">{row.name}</b><small className="row-sub">Provider capability</small></td><td><span className="table-category">{row.category}</span></td><td className="criteria-cell">{row.criteria}</td><td><span className="owner-mark">{row.owner === "Team North" ? "TN" : "TS"}</span>{row.owner}</td><td><StatusBadge status={row.status} /></td><td>{row.updated}</td></tr>)}</DataTable>
-      <div className="table-footer"><span>DEMO / FIXTURE · No qualification completion is implied</span><button className="text-button">View all records <ArrowRight size={14} /></button></div>
-    </section>
-  </div>
+function ProjectPage({ onNavigate }: { onNavigate: (id: ViewId) => void }) {
+  return (
+    <div className="page-stack">
+      <SectionHeader eyebrow="F4 · PROJECT · TEAM 2" title="Project" description="A simulated initiative sets the outcome and the measures used by the performance step." action={<button className="button button-dark" onClick={() => onNavigate("F6")}>Continue to F6 Performance <ArrowRight size={15} /></button>} />
+      <section className="scenario-hero project-hero"><div><span className="overline">SIMULATED INITIATIVE</span><h2>Case handling time reduction</h2><p>{demoScenario.objective}</p></div><DataSourceBadge source="SIMULATED" /></section>
+      <section className="metric-grid" aria-label="Project scenario measures">
+        <ScenarioMetric label="Baseline" value={demoScenario.baselineMinutes} unit="min / case" detail="Starting point in the scenario fixture" />
+        <ScenarioMetric label="Target" value={demoScenario.targetMinutes} unit="min / case" detail="Project goal; not a live service metric" />
+      </section>
+      <section className="panel panel-pad scenario-panel"><div className="panel-heading"><div><div className="overline">PROJECT OBJECTIVE</div><h2>Define the measure, not a live result</h2></div><span className="scenario-icon"><Sparkles size={18} /></span></div><p className="panel-intro">The next step compares an explicitly simulated observation against this target. No initiative has been submitted to a factory service.</p><div className="scenario-inline-note"><span>F4</span><b>10 minutes baseline</b><ArrowRight size={14} /><b>8 minutes target</b></div></section>
+    </div>
+  )
 }
 
-function EvidencePage({ searchTerm }: { searchTerm: string }) {
-  const [filter, setFilter] = useState("All evidence")
-  const [selected, setSelected] = useState<string | null>(null)
-  const rows = useMemo(() => evidenceRecords.filter((row) => `${row.name} ${row.source} ${row.type} ${row.linked} ${row.status}`.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === "All evidence" || row.status === filter)), [searchTerm, filter])
-  return <div className="page-stack"><SectionHeader eyebrow="F6 · EVIDENCE LIBRARY" title="Evidence" description="A traceable library of supporting records, their sources, and validation state." action={<button className="button button-dark" onClick={() => setSelected("Add evidence record")}><FilePlus2 size={15} /> Add evidence</button>} />
-    <div className="detail-stats"><SmallStat label="Total records" value="28" caption="Across 4 connected factories" /><SmallStat label="Validated" value="19" caption="Reviewed and traceable" tone="good" /><SmallStat label="In review" value="06" caption="Awaiting validation" tone="blue" /><SmallStat label="Needs follow-up" value="03" caption="Source detail requested" tone="warning" /></div>
-    <div className="evidence-callout"><span className="evidence-callout-icon"><ShieldCheck size={19} /></span><div><b>Traceability built in</b><p>Each record retains a source, review state, and link to the factory requirement it supports.</p></div><span className="demo-chip">DEMO RECORDS</span></div>
-    <section className="panel table-panel"><TableTitle eyebrow="SOURCE RECORDS" title="Evidence library" count={`${rows.length} of 28 records`}><FilterSelect value={filter} onChange={setFilter} options={["All evidence", "Verified", "In review", "Draft", "Open"]} /></TableTitle>
-      <DataTable headers={["Record", "Source details", "Type", "Linked requirement", "Validation", "Date"]}>{rows.map((row) => <tr key={row.name}><td><button className="row-link" onClick={() => setSelected(row.name)}><span className="record-icon"><FilePlus2 size={15} /></span><span><b className="row-title">{row.name}</b><small className="row-sub">Fixture record · view details</small></span></button></td><td className="criteria-cell">{row.source}</td><td><span className="table-category">{row.type}</span></td><td><button className="linked-factory" onClick={() => setSelected(row.linked)}>{row.linked}<ExternalLink size={12} /></button></td><td><StatusBadge status={row.status} /></td><td>{row.date}</td></tr>)}</DataTable>
-      <div className="table-footer"><span>Showing sample records · All entries labeled DEMO / FIXTURE</span><button className="text-button"><ArrowDownToLine size={14} /> Download index</button></div>
-    </section>
-    {selected && <DetailModal title={selected} onClose={() => setSelected(null)}><div className="modal-detail"><div className="modal-detail-icon"><FilePlus2 size={20} /></div><p>This is a sample evidence record for demonstration purposes. Source data and validation status are fixtures, not connected to a live system.</p><div className="modal-meta"><span>Source</span><b>Demo workspace · fixture record</b><span>Traceability</span><b>Linked to sample factory criteria</b><span>Validation</span><StatusBadge status="In review" /></div></div></DetailModal>}
-  </div>
+function PerformancePage({ onNavigate }: { onNavigate: (id: ViewId) => void }) {
+  const gap = demoScenario.observedMinutes - demoScenario.targetMinutes
+  return (
+    <div className="page-stack">
+      <SectionHeader eyebrow="F6 · PERFORMANCE · TEAM 2" title="Performance" description="Compare the scenario observation against the F4 project target. This is not live telemetry." action={<button className="button button-dark" onClick={() => onNavigate("decision")}>Review human decision <ArrowRight size={15} /></button>} />
+      <section className="metric-grid" aria-label="Simulated performance measures">
+        <ScenarioMetric label="Baseline" value={demoScenario.baselineMinutes} unit="min / case" detail="F4 project fixture" />
+        <ScenarioMetric label="Target" value={demoScenario.targetMinutes} unit="min / case" detail="F4 project fixture" />
+        <ScenarioMetric label="Observed result" value={demoScenario.observedMinutes} unit="min / case" detail="SIMULATED observation" />
+        <ScenarioMetric label="Performance gap" value={`+${gap}`} unit="min / case" detail="Above target in this scenario" />
+      </section>
+      <PerformanceScenarioChart />
+      <div className="scenario-caution"><CircleHelp size={15} /><span>The 9-minute result and 1-minute gap are scenario calculations only. No factory response, measurement, or successful HTTP status is represented.</span></div>
+    </div>
+  )
 }
 
-function SourcingPage({ searchTerm }: { searchTerm: string }) {
-  const [filter, setFilter] = useState("All gaps")
-  const [statuses, setStatuses] = useState<Record<string, Status>>({})
-  const [selected, setSelected] = useState<string | null>(null)
-  const rows = useMemo(() => sourcingGaps.filter((row) => `${row.name} ${row.impact} ${row.owner} ${row.recommendation}`.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === "All gaps" || (statuses[row.name] ?? row.status) === filter)), [searchTerm, filter, statuses])
-  const advance = (name: string) => setStatuses((current) => ({ ...current, [name]: current[name] === "Open" ? "In review" : current[name] === "In review" ? "Complete" : "In review" }))
-  return <div className="page-stack"><SectionHeader eyebrow="F11 · GAP RESOLUTION" title="Sourcing" description="Turn readiness gaps into owned actions with clear recommendations and status." action={<button className="button button-dark" onClick={() => setSelected("Add sourcing gap")}><Plus size={15} /> Add gap</button>} />
-    <div className="sourcing-summary"><div className="summary-head"><div><span className="overline">GAP REGISTER</span><h2>4 sourcing gaps identified</h2><p>Recommendations are linked to requirements and team owners.</p></div><span className="gap-summary-icon"><TriangleAlert size={20} /></span></div><div className="gap-summary-stats"><span><b>2</b> high impact</span><span><b>2</b> open</span><span><b>1</b> complete</span><span className="summary-progress"><span>Overall resolution</span><i><i /></i><b>42%</b></span></div></div>
-    <section className="panel table-panel"><TableTitle eyebrow="RECOMMENDATIONS & ACTIONS" title="Sourcing gap register" count={`${rows.length} gaps`}><FilterSelect value={filter} onChange={setFilter} options={["All gaps", "Open", "In review", "Complete"]} /></TableTitle>
-      <DataTable headers={["Gap", "Impact", "Recommendation", "Owner", "Due date", "Status", "Next action"]}>{rows.map((row) => { const status = statuses[row.name] ?? row.status; return <tr key={row.name}><td><b className="row-title">{row.name}</b><small className="row-sub">Linked from F12 readiness</small></td><td><span className={`impact-label ${row.impact.toLowerCase()}`}><span />{row.impact}</span></td><td className="recommendation-cell">{row.recommendation}</td><td><span className="owner-mark">{row.owner === "Team North" ? "TN" : "TS"}</span>{row.owner}</td><td>{row.due}</td><td><StatusBadge status={status} /></td><td>{status !== "Complete" ? <button className="row-action" onClick={() => advance(row.name)}>{status === "Open" ? "Start review" : "Mark complete"}<ArrowRight size={13} /></button> : <span className="complete-label"><CheckCircle2 size={14} /> Done</span>}</td></tr> })}</DataTable>
-      <div className="table-footer"><span>DEMO / FIXTURE · Updates remain in this browser session</span><button className="text-button" onClick={() => setSelected("Sourcing recommendations")}>How recommendations work <CircleHelp size={14} /></button></div>
-    </section>
-    {selected && <DetailModal title={selected} onClose={() => setSelected(null)}><div className="modal-detail"><div className="modal-detail-icon amber"><Sparkles size={20} /></div><p>Sample recommendations help teams prioritize next steps based on the readiness requirements still outstanding. No supplier outreach is performed by this demo.</p><div className="info-callout"><CircleHelp size={16} /><span>Actions in this demo change only the on-screen sample status.</span></div></div></DetailModal>}
-  </div>
+function PeopleAssurancePage({ disposition, onNavigate }: { disposition: HumanDisposition | null; onNavigate: (id: ViewId) => void }) {
+  return (
+    <div className="page-stack">
+      <SectionHeader eyebrow="F1 · PEOPLE ASSURANCE · TEAM 1" title="People Assurance" description="Review a simulated qualification claim and a scenario-only factory assessment." action={<button className="button button-dark" onClick={() => onNavigate("F11")}>Continue to F11 Talent <ArrowRight size={15} /></button>} />
+      <div className="scenario-two-column">
+        <section className="panel panel-pad claim-panel"><div className="panel-heading"><div><div className="overline">SIMULATED QUALIFICATION CLAIM</div><h2>Claim under assessment</h2></div><DataSourceBadge source="SIMULATED" /></div><blockquote>{demoScenario.qualificationClaim}</blockquote><p className="panel-intro">This claim is provided as a scenario fixture. It is not a real person or team qualification.</p></section>
+        <section className="panel panel-pad assessment-panel"><div className="panel-heading"><div><div className="overline">SIMULATED FACTORY ASSESSMENT</div><h2>Assessment outcome</h2></div><span className="scenario-icon"><ShieldCheck size={18} /></span></div><p>{demoScenario.assessment}</p><div className="assessment-disposition"><span>Human disposition</span><b>{disposition ? disposition.replaceAll("-", " ") : "Not selected"}</b><DataSourceBadge source="SIMULATED" /></div></section>
+      </div>
+      <div className="scenario-caution"><CircleHelp size={15} /><span>This assessment is a demo fixture, not an independent assurance decision, certification, or live F1 response.</span></div>
+    </div>
+  )
 }
 
-function ReadinessPage({ searchTerm, onNavigate, onDemo }: { searchTerm: string; onNavigate: (id: ViewId) => void; onDemo: () => void }) {
-  const [checked, setChecked] = useState<Record<string, boolean>>({})
-  const [filter, setFilter] = useState("All requirements")
-  const rows = useMemo(() => readinessRequirements.filter((row) => `${row.name} ${row.source} ${row.evidence} ${row.status}`.toLowerCase().includes(searchTerm.toLowerCase()) && (filter === "All requirements" || (checked[row.name] ? "Complete" : row.status) === filter)), [searchTerm, filter, checked])
-  const completed = readinessRequirements.filter((row) => checked[row.name] || row.status === "Complete").length
-  return <div className="page-stack"><SectionHeader eyebrow="F12 · READINESS SUMMARY" title="Founder readiness" description="A connected summary that brings qualification and evidence into one actionable view." action={<button className="button button-dark" onClick={onDemo}><Sparkles size={15} /> Guided walkthrough</button>} />
-    <div className="readiness-hero"><div className="readiness-score-wrap"><div className="readiness-ring"><div><strong>71</strong><span>of 100</span></div></div><div><span className="score-trend"><Check size={13} /> +8 points this month</span><small>Illustrative readiness score</small></div></div><div className="readiness-hero-copy"><span className="overline">CURRENT SNAPSHOT · DEMO DATA</span><h2>Good progress, with a few<br className="desktop-only" /> important steps ahead.</h2><p>F12 consumes qualification and evidence from F1 and F6. Sourcing gaps flow to F11 for resolution.</p><button className="light-text-button" onClick={() => onNavigate("overview")}>Explore the workflow map <ArrowRight size={14} /></button></div><div className="hero-donut-accent" aria-hidden="true" /></div>
-    <div className="readiness-breakdown"><div><span className="breakdown-label">Qualification · F1</span><div className="breakdown-track"><i className="purple" style={{ width: "68%" }} /></div><b>68%</b></div><div><span className="breakdown-label">Evidence · F6</span><div className="breakdown-track"><i className="teal" style={{ width: "84%" }} /></div><b>84%</b></div><div><span className="breakdown-label">Gap resolution · F11</span><div className="breakdown-track"><i className="coral" style={{ width: "42%" }} /></div><b>42%</b></div></div>
-    <section className="panel table-panel"><TableTitle eyebrow="READINESS CHECKLIST" title="Requirements & evidence" count={`${completed} of ${readinessRequirements.length} complete`}><FilterSelect value={filter} onChange={setFilter} options={["All requirements", "Open", "In review", "Complete"]} /></TableTitle>
-      <DataTable headers={["Requirement", "Source factory", "Supporting evidence", "Status", "Review"]}>{rows.map((row) => { const isDone = checked[row.name] || row.status === "Complete"; return <tr key={row.name}><td><b className="row-title">{row.name}</b><small className="row-sub">Founder readiness requirement</small></td><td><button className="linked-factory" onClick={() => onNavigate(row.source.startsWith("F1") ? "F1" : row.source.startsWith("F11") ? "F11" : "F6")}>{row.source}<ArrowRight size={12} /></button></td><td className="criteria-cell"><span className="evidence-inline"><FilePlus2 size={14} />{checked[row.name] ? "Review noted in demo" : row.evidence}</span></td><td><StatusBadge status={isDone ? "Complete" : row.status} /></td><td><button className={`review-check ${isDone ? "checked" : ""}`} aria-label={`${isDone ? "Unmark" : "Mark"} ${row.name} reviewed`} onClick={() => setChecked((current) => ({ ...current, [row.name]: !current[row.name] }))}>{isDone && <Check size={12} />}</button></td></tr> })}</DataTable>
-      <div className="table-footer"><span>Review toggles are temporary demo interactions and are not saved.</span><button className="text-button" onClick={() => onNavigate("F6")}>Browse evidence <ArrowRight size={14} /></button></div>
-    </section>
-  </div>
+function TalentPage({ disposition, onNavigate }: { disposition: HumanDisposition | null; onNavigate: (id: ViewId) => void }) {
+  return (
+    <div className="page-stack">
+      <SectionHeader eyebrow="F11 · TALENT ASSURANCE & MARKETPLACE · TEAM 1" title="Talent Assurance & Marketplace" description="Show the downstream recommendation while keeping execution explicitly denied in the scenario." action={<button className="button button-outline" onClick={() => onNavigate("demo")}>Open Guided Demo <ArrowRight size={15} /></button>} />
+      <section className="panel panel-pad recommendation-panel"><div className="panel-heading"><div><div className="overline">SIMULATED TALENT RECOMMENDATION</div><h2>Recommendation for human review</h2></div><DataSourceBadge source="SIMULATED" /></div><p>{demoScenario.recommendation}</p><div className="assessment-disposition"><span>Human disposition</span><b>{disposition ? disposition.replaceAll("-", " ") : "Not selected"}</b></div></section>
+      <section className="scenario-two-column">
+        <article className="execution-denial-card"><div className="denial-card-heading"><div><span className="overline">EXPECTED EXECUTION DENIAL</span><h2>HTTP 403 · expected, not observed</h2></div><span className="denial-status">SIMULATED EXPECTATION</span></div><p>{demoScenario.expectedExecutionDenial}</p><small>No execution request was made in preview.</small></article>
+        <article className="panel panel-pad recognition-card"><div className="panel-heading"><div><div className="overline">SIMULATED RECOGNITION RECORD</div><h2>{demoScenario.recognitionRecord.type}</h2></div><span className="scenario-icon"><Sparkles size={18} /></span></div><dl className="scenario-definition-list"><dt>Reference</dt><dd>{demoScenario.recognitionRecord.reference}</dd><dt>Capability</dt><dd>{demoScenario.recognitionRecord.capability}</dd><dt>Record status</dt><dd>{demoScenario.recognitionRecord.status}</dd></dl><strong className="recognition-guardrail">{demoScenario.recognitionRecord.guardrail}</strong></article>
+      </section>
+      <div className="scenario-caution"><CircleHelp size={15} /><span>Recognition records recognition only. It is NOT a hire or assignment, and this preview performs no execution.</span></div>
+    </div>
+  )
 }
-
-function Capability({ name, percent, color, hint }: { name: string; percent: number; color: string; hint: string }) { return <div className="capability-row"><div className="capability-top"><b>{name}</b><span>{percent}%</span></div><div className="progress-track"><span className={color} style={{ width: `${percent}%` }} /></div><small>{hint}</small></div> }
-function SmallStat({ label, value, caption, tone = "" }: { label: string; value: string; caption: string; tone?: string }) { return <article className="detail-stat"><span className="detail-stat-label">{label}</span><b className={tone}>{value}</b><small>{caption}</small></article> }
-function TableTitle({ eyebrow, title, count, children }: { eyebrow: string; title: string; count: string; children?: React.ReactNode }) { return <div className="table-title"><div><div className="overline">{eyebrow}</div><h2>{title} <span>{count}</span></h2></div><div className="table-controls">{children}</div></div> }
-function FilterSelect({ value, onChange, options }: { value: string; onChange: (value: string) => void; options: string[] }) { return <label className="filter-select"><Filter size={14} /><span className="sr-only">Filter records</span><select value={value} onChange={(event) => onChange(event.target.value)}>{options.map((option) => <option key={option}>{option}</option>)}</select><ChevronDown size={13} /></label> }
-function DetailModal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) { return <div className="modal-backdrop" role="presentation" onClick={onClose}><section className="detail-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onClick={(event) => event.stopPropagation()}><div className="modal-header"><div><span className="overline">DEMO / FIXTURE DETAIL</span><h2 id="modal-title">{title}</h2></div><button className="icon-button" onClick={onClose} aria-label="Close details">×</button></div>{children}<button className="button button-dark modal-close" onClick={onClose}>Close</button></section></div> }
