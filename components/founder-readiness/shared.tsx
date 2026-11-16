@@ -32,7 +32,7 @@ export function DemoModeBanner() {
   return (
     <div className="global-demo-banner" role="status">
       <strong>DEMO MODE</strong>
-      <span>Dashboard scenario fixtures remain SIMULATED. Guided Demo shows LIVE results only when Julian&apos;s backend returns an actual response; scenario data is labeled separately.</span>
+      <span>Dashboard scenario fixtures remain SIMULATED. Guided Demo shows LIVE results only when the Cogsyne AI Backend returns an actual response; scenario data is labeled separately.</span>
     </div>
   )
 }

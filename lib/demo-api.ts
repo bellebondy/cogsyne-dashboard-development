@@ -21,9 +21,9 @@ export type StepExecutionResult = {
 }
 
 export const factoryPorts: Record<FactoryId, number> = {
-  F4: 3001,
-  F6: 3004,
-  F1: 3006,
+  F4: 3004,
+  F6: 3006,
+  F1: 3001,
   F11: 3011,
 }
 
@@ -57,8 +57,8 @@ export function isSuccessfulStepResponse(payload: unknown, httpOk: boolean) {
 export function getUpdatedWorkflowState(payload: unknown, currentState: JsonObject): JsonObject {
   if (!isJsonObject(payload)) return currentState
   const nested = nestedPayload(payload)
-  const updated = payload.updatedState ?? payload.updated_state ?? nested.updatedState ?? nested.updated_state ?? payload.state ?? nested.state
-  return isJsonObject(updated) ? updated : currentState
+  const updated = payload.updatedState ?? payload.updated_state ?? payload.state ?? nested.updatedState ?? nested.updated_state ?? nested.state
+  return isJsonObject(updated) ? { ...currentState, ...updated } : currentState
 }
 
 export function getResponseValue(payload: unknown, keys: string[]) {
@@ -123,7 +123,7 @@ export function getFactoryHealth(payload: unknown, id: FactoryId): "online" | "o
   if (typeof entry === "string") return normalizeHealth(entry)
   if (!isJsonObject(entry)) return "unknown"
 
-  for (const key of ["online", "healthy", "running", "reachable", "ok", "isOnline", "is_healthy"]) {
+  for (const key of ["up", "online", "healthy", "running", "reachable", "ok", "isOnline", "is_healthy"]) {
     if (typeof entry[key] === "boolean") return entry[key] ? "online" : "offline"
   }
   for (const key of ["status", "state", "health"]) {

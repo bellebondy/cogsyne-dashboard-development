@@ -21,7 +21,7 @@ export default function DashboardApp() {
   const workflowStateRef = useRef<JsonObject>({})
   const workflowStateSnapshotsRef = useRef<Partial<Record<number, JsonObject>>>({})
   const [disposition, setDisposition] = useState<HumanDisposition | null>(null)
-  const [runMessage, setRunMessage] = useState("Ready to connect to Julian's demo backend.")
+  const [runMessage, setRunMessage] = useState("Ready to connect to the Cogsyne AI Backend.")
   const [configRequest, setConfigRequest] = useState<ApiRequestResult | null>(null)
   const [healthRequest, setHealthRequest] = useState<ApiRequestResult | null>(null)
   const [configPayload, setConfigPayload] = useState<unknown>(null)
@@ -67,7 +67,7 @@ export default function DashboardApp() {
   const refreshServices = async () => {
     if (busyAction !== null) return
     setBusyAction("checking")
-    setRunMessage("Checking backend configuration and factory health...")
+    setRunMessage("Checking the Backend Connection and Factory Services health...")
     const [configResult, healthResult] = await Promise.all([
       callDemoApi("config"),
       callDemoApi("health"),
@@ -99,7 +99,7 @@ export default function DashboardApp() {
       : stateBeforeStep
 
     setCurrentStep(index)
-    setRunMessage(`Running ${scenarioSteps[index].title} against Julian's backend...`)
+    setRunMessage(`Running ${scenarioSteps[index].title} using the Cogsyne AI Workflow Engine...`)
     const request = await callDemoApi(`step/${index + 1}`, "POST", stateForRequest)
     const payload = isJsonObject(request.payload) ? request.payload : null
     const successful = isSuccessfulStepResponse(payload, request.ok)

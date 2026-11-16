@@ -67,7 +67,7 @@ export function ApiResponseDetails({ stepId, result }: { stepId: DemoStepId; res
         <section className="api-source-card live-response-card"><div className="panel-heading"><h3>Backend response</h3>{result?.request.upstreamResponded && <DataSourceBadge source="LIVE" />}</div>
           {!result ? <p>No request has been made for this step.</p> : <>
             <RequestStatus request={result.request} />
-            {!result.request.upstreamResponded && <p className="api-error-message">{result.request.error ?? getApiError(result.request.payload) ?? "No response was received from Julian's backend."}</p>}
+            {!result.request.upstreamResponded && <p className="api-error-message">{result.request.error ?? getApiError(result.request.payload) ?? "No response was received from the Factory API."}</p>}
             {result.request.upstreamResponded && <>
               <div className="api-response-field"><strong>Step status</strong><span>{backendStatus}</span></div>
               {summary !== undefined && <div className="api-response-field"><strong>Summary</strong><p>{formatValue(summary)}</p></div>}
@@ -111,7 +111,7 @@ export function FactoryHealthPanel({ compact = false, healthRequest = null, heal
         return <div className="health-row" key={factory.id}><span className={`health-unchecked health-icon-${status}`}><Icon size={13} /></span><span className="health-factory"><strong>{factory.id} · {factory.name}</strong><small>{factory.team} · port {factoryPorts[factory.id]}</small></span><span className={`health-status health-status-${status}`}>{label}</span></div>
       })}</div>
       {(healthRequest || configRequest) && <div className="health-api-summary">{healthRequest && <RequestStatus request={healthRequest} />}{configRequest && <details className="config-response-details"><summary>GET /api/config · {configRequest.httpStatus === null ? "No HTTP status" : `HTTP ${configRequest.httpStatus}`}</summary><div>{configRequest.upstreamResponded ? <DataSourceBadge source="LIVE" /> : <p className="api-error-message">{configRequest.error}</p>}<pre>{formatValue(configPayload)}</pre></div></details>}</div>}
-      {!compact && <p className="health-footnote"><CircleHelp size={14} /> A service is marked LIVE only when its health data comes from Julian&apos;s backend. Factory ports are shown as configured locally: 3001, 3004, 3006, and 3011.</p>}
+      {!compact && <p className="health-footnote"><CircleHelp size={14} /> A service is marked LIVE only when health data comes from connected Factory Services. Configured ports: F4 · 3004, F6 · 3006, F1 · 3001, F11 · 3011.</p>}
     </section>
   )
 }

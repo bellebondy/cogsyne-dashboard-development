@@ -35,8 +35,8 @@ export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDis
 
   return (
     <div className="page-stack">
-      <SectionHeader eyebrow="GUIDED DEMO · FIVE STEPS" title="A performance gap leads to a talent decision." description="Run F4 → F6 → Human Decision → F1 → F11 through Julian's backend when configured. Factory results and scenario data are shown separately." />
-      <section className="guided-demo-hero"><div className="guided-demo-copy"><DataSourceBadge source="SIMULATED" /><h2>Run the workflow against Julian&apos;s backend when configured.</h2><p>Step requests are proxied server-side. Only actual backend responses are marked LIVE; any scenario data in a response stays labeled SIMULATED.</p></div><div className="guided-controls"><button className="button button-dark" onClick={onRunNext} disabled={busy} aria-busy={runningStep !== null}><Play size={14} /> {runningStep !== null ? "Running step…" : "Run Next Step"}</button><button className="button button-outline" onClick={onRunAll} disabled={busy} aria-busy={runningAll}><CheckCircle2 size={14} /> {runningAll ? "Running all…" : "Run All"}</button><button className="button button-quiet" onClick={onReset} disabled={busy}><RotateCcw size={14} /> Reset</button></div></section>
+      <SectionHeader eyebrow="GUIDED DEMO · FIVE STEPS" title="A performance gap leads to a talent decision." description="Run F4 → F6 → Human Decision → F1 → F11 through the Cogsyne AI Workflow Engine when configured. Factory results and scenario data are shown separately." />
+      <section className="guided-demo-hero"><div className="guided-demo-copy"><DataSourceBadge source="SIMULATED" /><h2>Run the workflow using the Cogsyne AI Workflow Engine.</h2><p>Step requests are proxied server-side. Only actual backend responses are marked LIVE; any scenario data in a response stays labeled SIMULATED.</p></div><div className="guided-controls"><button className="button button-dark" onClick={onRunNext} disabled={busy} aria-busy={runningStep !== null}><Play size={14} /> {runningStep !== null ? "Running step…" : "Run Next Step"}</button><button className="button button-outline" onClick={onRunAll} disabled={busy} aria-busy={runningAll}><CheckCircle2 size={14} /> {runningAll ? "Running all…" : "Run All"}</button><button className="button button-quiet" onClick={onReset} disabled={busy}><RotateCcw size={14} /> Reset</button></div></section>
       <div className="run-progress" role="progressbar" aria-label="Guided demo progress" aria-valuemin={0} aria-valuemax={scenarioSteps.length} aria-valuenow={completedCount}><span style={{ width: `${(completedCount / scenarioSteps.length) * 100}%` }} /></div>
       <p className="demo-run-message" role="status">{runMessage}</p>
       <div className="guided-layout">
@@ -71,7 +71,7 @@ export function GuidedDemoPage({ currentStep, completedSteps, disposition, onDis
         </section>
       </div>
       <FactoryHealthPanel healthRequest={healthRequest} healthPayload={healthPayload} configRequest={configRequest} configPayload={configPayload} onRefresh={onRefreshServices} refreshing={refreshing} actionsDisabled={busy} />
-      <div className="scenario-caution"><CircleHelp size={15} /><span>Reset clears this browser&apos;s workflow state. Julian&apos;s API does not list a remote reset endpoint, so no backend reset request is sent.</span></div>
+      <div className="scenario-caution"><CircleHelp size={15} /><span>Reset clears this browser&apos;s workflow state. The Factory API does not provide a remote reset endpoint, so no backend reset request is sent.</span></div>
     </div>
   )
 }
