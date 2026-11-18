@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, ArrowRight, BadgeInfo, ClipboardList, Gauge, ShieldCheck, Users } from "lucide-react"
+import { ArrowLeft, ArrowRight, BadgeInfo, ClipboardList, Gauge, RotateCcw, ShieldCheck, Users } from "lucide-react"
 import type { ViewId } from "@/lib/founder-demo-data"
+import { useInitiativeWorkspace } from "@/lib/initiative-workspace"
 import { SectionHeader } from "./shared"
 
 const stages = [
@@ -55,6 +56,7 @@ const potentialRisks = [
 ]
 
 export function CheesecakeDemoPage({ onNavigate }: { onNavigate: (id: ViewId) => void }) {
+  const { selectedDraft, resetExample } = useInitiativeWorkspace()
   const [activeStage, setActiveStage] = useState(0)
   const stage = stages[activeStage]
   const StageIcon = stage.icon
@@ -65,7 +67,7 @@ export function CheesecakeDemoPage({ onNavigate }: { onNavigate: (id: ViewId) =>
         eyebrow="ILLUSTRATIVE DEMO SCENARIO · NOT AN ASSESSMENT"
         title="The Cheesecake Factory — Illustrative Demo Workspace"
         description="Explore how an organization might plan an AI transformation, what COMRADII could help evaluate, and which decisions remain with people."
-        action={<button className="button button-outline" onClick={() => onNavigate("F4")}><ArrowLeft size={14} aria-hidden="true" />Back to initiatives</button>}
+        action={<div className="initiative-heading-actions"><button className="button button-outline" onClick={() => { if (window.confirm("Reset this local sandbox to the original fictional example? Your sandbox edits will be replaced.")) resetExample() }}><RotateCcw size={14} aria-hidden="true" />Reset Example</button><button className="button button-outline" onClick={() => onNavigate("F4")}><ArrowLeft size={14} aria-hidden="true" />Back to initiatives</button></div>}
       />
 
       <div className="illustrative-disclaimer" role="note">
@@ -82,6 +84,8 @@ export function CheesecakeDemoPage({ onNavigate }: { onNavigate: (id: ViewId) =>
           <span className="illustrative-status">Planning illustration · No actual company data or results</span>
         </div>
       </section>
+
+      {selectedDraft && <section className="panel scenario-workspace-summary"><div className="panel-heading"><div><div className="overline">EDITABLE LOCAL SANDBOX</div><h2>{selectedDraft.name}</h2></div><span className="planning-source-badge illustrative">FICTIONAL · NOT VERIFIED</span></div><p>{selectedDraft.objective}</p><div className="scenario-summary-metrics"><div><strong>{Object.values(selectedDraft.readinessAnswers).filter((answer) => answer.trim()).length} / 18</strong><span>Planning questions answered</span></div><div><strong>{selectedDraft.kpis.length}</strong><span>Illustrative KPIs</span></div><div><strong>{selectedDraft.actions.filter((action) => action.status !== "completed").length}</strong><span>Open planning actions</span></div><div><strong>{selectedDraft.evidence.length}</strong><span>Evidence checklist items</span></div></div><div className="scenario-workspace-links"><button className="button button-outline" onClick={() => onNavigate("overview")}>Open overview</button><button className="button button-outline" onClick={() => onNavigate("readiness")}>Readiness questions</button><button className="button button-outline" onClick={() => onNavigate("performance")}>KPIs &amp; outcomes</button><button className="button button-outline" onClick={() => onNavigate("people")}>People &amp; skills</button><button className="button button-outline" onClick={() => onNavigate("decision")}>Actions &amp; milestones</button><button className="button button-outline" onClick={() => onNavigate("evidence")}>Evidence checklist</button></div><p className="scenario-note">Edits are saved as a separate browser-local sandbox. Reset Example restores the fictional starting data; no real restaurant data, results, or decisions are implied.</p></section>}
 
       <div className="guided-demo-progress" aria-label="Guided demonstration stages">
         {stages.map((item, index) => (

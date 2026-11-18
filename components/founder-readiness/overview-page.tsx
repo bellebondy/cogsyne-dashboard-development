@@ -4,6 +4,7 @@ import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID, demoScenario, factories, getH
 import { getDemoActivity, getFactoryHealth, type ApiRequestResult, type StepExecutionResult } from "@/lib/demo-api"
 import { DataSourceBadge } from "./shared"
 import { useInitiativeWorkspace } from "@/lib/initiative-workspace"
+import { InitiativeOverview } from "./initiative-overview"
 
 export function OverviewPage({ onNavigate, onDemo, onRefreshServices, searchTerm, disposition, stepResults, configRequest, healthRequest, healthPayload, refreshing, actionsDisabled }: {
   onNavigate: (id: ViewId) => void
@@ -18,7 +19,7 @@ export function OverviewPage({ onNavigate, onDemo, onRefreshServices, searchTerm
   refreshing: boolean
   actionsDisabled: boolean
 }) {
-  const { drafts, selectedId, selectedDraft, selectInitiative } = useInitiativeWorkspace()
+  const { drafts, selectedId, selectedDraft, selectInitiative, exportDraft } = useInitiativeWorkspace()
   const query = searchTerm.trim().toLowerCase()
   const matches = (terms: string[]) => !query || terms.some((term) => term.toLowerCase().includes(query))
   const showInitiative = selectedId === TECHNICAL_FIXTURE_ID && matches(["case handling time reduction", demoScenario.objective, "ai initiative", "baseline target observed"])
@@ -32,6 +33,8 @@ export function OverviewPage({ onNavigate, onDemo, onRefreshServices, searchTerm
   const activity = getDemoActivity(configRequest, healthRequest, stepResults)
   const healthyResponse = Boolean(healthRequest?.upstreamResponded && healthRequest.ok)
   const openExample = () => { selectInitiative(CHEESECAKE_DEMO_ID); onNavigate("example") }
+
+  if (selectedDraft && selectedId !== TECHNICAL_FIXTURE_ID) return <InitiativeOverview draft={selectedDraft} onNavigate={onNavigate} onExport={() => exportDraft(selectedDraft)} />
 
   if (!query) return (
     <div className="page-stack customer-home">

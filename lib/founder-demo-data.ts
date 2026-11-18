@@ -2,7 +2,7 @@ export type FactoryId = "F4" | "F6" | "F1" | "F11"
 export const CHEESECAKE_DEMO_ID = "cheesecake-demo"
 export const TECHNICAL_FIXTURE_ID = "technical-test-fixture"
 export type DemoStepId = FactoryId | "decision"
-export type ViewId = "overview" | "readiness" | "evidence" | "showcase" | "demo" | "decision" | "example" | FactoryId
+export type ViewId = "overview" | "readiness" | "performance" | "people" | "evidence" | "showcase" | "demo" | "decision" | "example" | FactoryId
 export type DataSource = "SIMULATED" | "LIVE"
 export type HumanDisposition = "proceed" | "request-evidence" | "hold"
 

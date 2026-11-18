@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { ArrowUp, PanelTopClose, RotateCcw, X } from "lucide-react"
 import type { ViewId } from "@/lib/founder-demo-data"
 import { FranklinAvatar } from "./franklin-avatar"
+import { useInitiativeWorkspace } from "@/lib/initiative-workspace"
 
 type ChatMessage = { role: "user" | "assistant"; content: string }
 
@@ -12,8 +13,11 @@ const MAX_LOCAL_MESSAGES = 14
 
 const pageIntros: Record<string, string> = {
   overview: "Need help getting started?",
-  readiness: "I can explain what each assessment area means.",
+  readiness: "I can help you think through a planning question.",
+  performance: "Want help choosing a useful business measure?",
+  people: "I can help identify roles, skills, and training needs.",
   evidence: "Want help understanding what evidence can show?",
+
   showcase: "Curious how the factory responsibilities fit together?",
   demo: "Want to understand what this demonstration can and can’t tell you?",
   decision: "Need help thinking through your next steps?",
@@ -35,9 +39,17 @@ const pageIntros: Record<string, string> = {
 const starterPrompts = [
   "What does COMRADII do?",
   "Help me plan an AI initiative.",
-  "Is my business ready for AI?",
   "What should I evaluate before using AI?",
 ]
+
+const pageSuggestions: Partial<Record<ViewId, string[]>> = {
+  readiness: ["Help me answer this readiness question.", "Explain this planning gap."],
+  performance: ["What KPI should I consider?"],
+  people: ["What roles or skills should I plan for?"],
+  decision: ["Help me organize the next steps."],
+  evidence: ["What evidence might I need?"],
+  example: ["How could AI demand forecasting help a restaurant?"],
+}
 
 function readSessionMessages(): ChatMessage[] {
   if (typeof window === "undefined") return []
@@ -65,6 +77,7 @@ function friendlyFailure(status?: number) {
 }
 
 export function FranklinChat({ pageId }: { pageId: ViewId }) {
+  const { selectedDraft } = useInitiativeWorkspace()
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [hasLoadedSession, setHasLoadedSession] = useState(false)
@@ -72,6 +85,7 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
   const [streamingText, setStreamingText] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [error, setError] = useState("")
+  const [includeInitiativeContext, setIncludeInitiativeContext] = useState(false)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const launcherRef = useRef<HTMLButtonElement>(null)
   const transcriptRef = useRef<HTMLDivElement>(null)
@@ -114,8 +128,13 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
     const content = text.trim()
     if (!content || isSending) return
 
-    const conversation = [...messages, { role: "user" as const, content }].slice(-MAX_LOCAL_MESSAGES)
+    const initiativeContext = includeInitiativeContext && selectedDraft
+      ? [`Initiative: ${selectedDraft.name}`, `Business objective: ${selectedDraft.objective || selectedDraft.goal || "Not provided"}`, `Business problem: ${selectedDraft.challenge || "Not provided"}`, `Potential AI use: ${selectedDraft.intendedUse || "Not provided"}`].join("\n")
+      : ""
+    const messageContent = initiativeContext ? `${content}\n\nContext the user chose to include:\n${initiativeContext}` : content
+    const conversation = [...messages, { role: "user" as const, content: messageContent }].slice(-MAX_LOCAL_MESSAGES)
     setMessages(conversation)
+    setIncludeInitiativeContext(false)
     setDraft("")
     setError("")
     setStreamingText("")
@@ -216,12 +235,6 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
     launcherRef.current?.focus()
   }
 
-  const contextualPrompt = pageId === "readiness"
-    ? "Explain how AI readiness is evaluated."
-    : pageId === "example"
-      ? "How could AI demand forecasting help a restaurant?"
-      : null
-
   return (
     <div className="franklin-widget">
       {isOpen && (
@@ -258,7 +271,7 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
                   {starterPrompts.map((prompt) => (
                     <button key={prompt} type="button" onClick={() => void sendMessage(prompt)} disabled={isSending}>{prompt}</button>
                   ))}
-                  {contextualPrompt && <button type="button" onClick={() => void sendMessage(contextualPrompt)} disabled={isSending}>{contextualPrompt}</button>}
+                  {pageSuggestions[pageId]?.map((prompt) => <button key={prompt} type="button" onClick={() => void sendMessage(prompt)} disabled={isSending}>{prompt}</button>)}
                 </div>
               </div>
             ) : (
@@ -283,6 +296,7 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
           </div>
 
           <form className="franklin-composer" onSubmit={submitMessage}>
+            {selectedDraft && <label className="franklin-context-choice"><input type="checkbox" checked={includeInitiativeContext} onChange={(event) => setIncludeInitiativeContext(event.target.checked)} /><span>Include a short summary of <strong>{selectedDraft.name}</strong> in my next message</span></label>}
             <label className="sr-only" htmlFor="franklin-input">Message Franklin</label>
             <div className="franklin-composer-row">
               <textarea
@@ -300,7 +314,7 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
                 <ArrowUp aria-hidden="true" />
               </button>
             </div>
-            <p id="franklin-disclosure" className="franklin-disclosure">Your message goes to AI Gateway. Initiative drafts aren&apos;t shared. AI Gateway usage may incur charges.</p>
+            <p id="franklin-disclosure" className="franklin-disclosure">Messages go to AI Gateway. Initiative details are excluded unless you check the box above and send a message. AI Gateway usage may incur charges.</p>
           </form>
         </section>
       )}

@@ -3,6 +3,7 @@ import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID, demoScenario, getHumanDisposi
 import { getDemoActivity, type ApiRequestResult, type StepExecutionResult } from "@/lib/demo-api"
 import { DataSourceBadge } from "./shared"
 import { useInitiativeWorkspace } from "@/lib/initiative-workspace"
+import { EvidenceChecklist } from "./evidence-checklist"
 
 type EvidenceActivityPageProps = {
   configRequest: ApiRequestResult | null
@@ -29,7 +30,7 @@ export function EvidenceActivityPage({ configRequest, healthRequest, stepResults
         </div>
       </div>
 
-      {selectedDraft && <section className="panel evidence-provenance-panel local-evidence-panel"><div className="panel-heading"><div><div className="overline">USER-PROVIDED PLANNING CONTEXT</div><h2>{selectedDraft.name}</h2></div><span className="local-data-badge">LOCAL DRAFT</span></div><p className="panel-intro">This is information entered into a local planning draft. It is not uploaded evidence, a backend event, or a verified finding.</p><div className="evidence-value-grid"><div><span>Objective</span><strong>{selectedDraft.objective || selectedDraft.goal || "Not provided"}</strong></div><div><span>Business challenge</span><strong>{selectedDraft.challenge || "Not provided"}</strong></div><div><span>Proposed measure</span><strong>{selectedDraft.successMetric || "Not defined"}</strong></div></div></section>}
+      <EvidenceChecklist />
       {selectedId === TECHNICAL_FIXTURE_ID && <section className="panel evidence-provenance-panel">
         <div className="panel-heading"><div><div className="overline">TECHNICAL CAPSTONE · ORIGINAL TEST FIXTURE</div><h2>Case-handling time reduction</h2></div><DataSourceBadge source="SIMULATED" /></div>
         <p className="panel-intro">These values are stored in the dashboard&apos;s local demo scenario. They are not returned by a factory service and must not be treated as measured business outcomes.</p>
@@ -40,11 +41,10 @@ export function EvidenceActivityPage({ configRequest, healthRequest, stepResults
         </div>
         <div className="evidence-source-note"><FileText size={15} aria-hidden="true" /><span>Source: local scenario fixture. No supporting business documents or evidence records are attached in this demo.</span></div>
       </section>}
-      {selectedId === CHEESECAKE_DEMO_ID && <section className="panel evidence-provenance-panel"><div className="panel-heading"><div><div className="overline">ILLUSTRATIVE SCENARIO</div><h2>There is no business evidence to inspect</h2></div><span className="local-data-badge">FICTIONAL EXAMPLE</span></div><p className="panel-intro">The restaurant walkthrough contains proposed questions and examples only. It has no actual company data, evidence records, factory responses, or measured outcomes.</p><button className="text-button" onClick={() => onNavigate("example")}>Return to guided walkthrough <ArrowRight size={14} aria-hidden="true" /></button></section>}
-      {!selectedDraft && selectedId !== TECHNICAL_FIXTURE_ID && selectedId !== CHEESECAKE_DEMO_ID && <section className="panel initiative-empty"><span className="initiative-path-icon"><CircleHelp size={18} aria-hidden="true" /></span><div><h2>No initiative selected</h2><p>Select one of your local drafts to see its planning context. API activity remains session-scoped.</p></div></section>}
+      {selectedId === CHEESECAKE_DEMO_ID && <section className="panel evidence-provenance-panel"><div className="panel-heading"><div><div className="overline">FICTIONAL EXAMPLE SANDBOX</div><h2>Checklist items are not source documents</h2></div><span className="local-data-badge">ILLUSTRATIVE</span></div><p className="panel-intro">The editable checklist contains fictional planning prompts only. No actual company information, source documents, factory responses, or measured outcomes are represented.</p><button className="text-button" onClick={() => onNavigate("example")}>Return to the demonstration <ArrowRight size={14} aria-hidden="true" /></button></section>}
 
       <section className="panel evidence-activity-panel">
-        <div className="panel-heading"><div><div className="overline">CAPTURED THIS SESSION</div><h2>Recent API activity</h2></div><span className="mini-label">API REQUESTS ONLY</span></div>
+        <div className="panel-heading"><div><div className="overline">FACTORY BACKEND · TECHNICAL ACTIVITY</div><h2>Recent API activity</h2></div><span className="mini-label">API REQUESTS ONLY</span></div>
         <p className="panel-intro">{selectedDraft ? "These service requests are from the demo integration and are separate from this local planning draft." : selectedId === CHEESECAKE_DEMO_ID ? "The technical API demonstration is independent from the restaurant illustration. Only requests actually made in this session appear here." : "Only requests actually made in this browser session appear here. No persistent audit history is implied."}</p>
         {activity.length === 0 ? (
           <div className="activity-empty-state"><span className="activity-empty-icon"><Clock3 size={18} aria-hidden="true" /></span><div><strong>{allActivity.length === 0 ? "No API activity captured yet" : "No requests match this search"}</strong><p>{allActivity.length === 0 ? "Service checks and workflow requests will appear here after they are made. No history is fabricated or retained between page reloads." : "Try a different endpoint, workflow step, status code, or error message."}</p></div></div>
@@ -76,11 +76,11 @@ export function EvidenceActivityPage({ configRequest, healthRequest, stepResults
         )}
       </section>
 
-      <section className="panel evidence-session-note">
+      {selectedId === TECHNICAL_FIXTURE_ID && <section className="panel evidence-session-note">
         <div><div className="overline">LOCAL WORKFLOW STATE</div><h2>Human disposition</h2></div>
         <p>{disposition ? `The selected demo choice is “${getHumanDispositionLabel(disposition)}.” It is held in browser memory and is sent with the third workflow request only when run.` : "No decision choice has been selected. A choice made on the decision page is held in browser memory; it is not a backend decision until sent with the third workflow request."}</p>
         <span className="evidence-source-note"><CircleHelp size={15} aria-hidden="true" /> Selecting a disposition does not authorize a hire, assignment, or production action.</span>
-      </section>
+      </section>}
     </div>
   )
 }
