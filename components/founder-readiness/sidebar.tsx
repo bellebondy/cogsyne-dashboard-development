@@ -1,64 +1,72 @@
 "use client"
 
-import { ArrowUpRight, BriefcaseBusiness, Factory, Gauge, GitBranch, LayoutDashboard, LifeBuoy, Settings2, ShieldCheck, Sparkles } from "lucide-react"
+import { Activity, BookOpenCheck, BriefcaseBusiness, FileText, Gauge, LayoutDashboard, Network, ShieldCheck, UserRoundCheck, Workflow, type LucideIcon } from "lucide-react"
 import type { ViewId } from "@/lib/founder-demo-data"
 
-const links: { id: ViewId; label: string; icon: typeof LayoutDashboard; number?: string }[] = [
-  { id: "overview", label: "Enterprise overview", icon: LayoutDashboard },
-  { id: "F4", label: "Project", icon: BriefcaseBusiness, number: "F4" },
-  { id: "F6", label: "Performance", icon: Gauge, number: "F6" },
-  { id: "decision", label: "Human Decision", icon: GitBranch },
-  { id: "F1", label: "People Assurance", icon: ShieldCheck, number: "F1" },
-  { id: "F11", label: "Talent Assurance", icon: Factory, number: "F11" },
-  { id: "demo", label: "Guided Demo", icon: Sparkles },
+export const businessLinks: { id: ViewId; label: string; icon: LucideIcon }[] = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "F4", label: "AI Initiatives", icon: BriefcaseBusiness },
+  { id: "F6", label: "Performance & Outcomes", icon: Gauge },
+  { id: "readiness", label: "Readiness & Assurance", icon: ShieldCheck },
+  { id: "decision", label: "Decisions & Actions", icon: UserRoundCheck },
+  { id: "F1", label: "People & Resources", icon: Activity },
+  { id: "evidence", label: "Evidence & Activity", icon: FileText },
 ]
 
+export const capstoneLinks: { id: ViewId; label: string; icon: LucideIcon }[] = [
+  { id: "showcase", label: "Capstone Showcase", icon: Network },
+  { id: "demo", label: "Five-step API demo", icon: Workflow },
+]
+
+export const mobileLinks = [...businessLinks, ...capstoneLinks]
+
 export const viewLabels: Record<ViewId, string> = {
-  overview: "Enterprise overview",
-  F4: "F4 · Project",
-  F6: "F6 · Performance",
-  decision: "Human Decision",
-  F1: "F1 · People Assurance",
-  F11: "F11 · Talent Assurance & Marketplace",
-  demo: "Guided Demo",
+  overview: "Overview",
+  example: "The Cheesecake Factory demo",
+  readiness: "Readiness & Assurance",
+  evidence: "Evidence & Activity",
+  showcase: "Capstone Showcase",
+  F4: "AI Initiatives",
+  F6: "Performance & Outcomes",
+  decision: "Decisions & Actions",
+  F1: "People & Resources",
+  F11: "Talent & Resource Recommendations",
+  demo: "Five-step API demo",
 }
 
-export function Sidebar({ active, onNavigate, onDemo }: { active: ViewId; onNavigate: (id: ViewId) => void; onDemo: () => void }) {
+function NavigationLinks({ links, active, onNavigate }: { links: typeof businessLinks; active: ViewId; onNavigate: (id: ViewId) => void }) {
+  return links.map(({ id, label, icon: Icon }) => (
+    <button key={id} onClick={() => onNavigate(id)} className={`nav-link ${active === id || (id === "F4" && active === "example") || (id === "F1" && active === "F11") ? "active" : ""}`} aria-current={active === id || (id === "F4" && active === "example") || (id === "F1" && active === "F11") ? "page" : undefined}>
+      <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
+      <span>{label}</span>
+    </button>
+  ))
+}
+
+export function Sidebar({ active, onNavigate, showCapstone, workspaceName, workspaceMode, workspaceInitial }: { active: ViewId; onNavigate: (id: ViewId) => void; showCapstone: boolean; workspaceName: string; workspaceMode: string; workspaceInitial: string }) {
   return (
     <aside className="sidebar">
-      <button className="brand-lockup" onClick={() => onNavigate("overview")} aria-label="Cogsyne home">
+      <button className="brand-lockup" onClick={() => onNavigate("overview")} aria-label="COMRADII home">
         <span className="brand-mark"><span /><span /><span /></span>
-        <span className="brand-name">cogsyne<span className="brand-period">.</span></span>
+        <span className="brand-name">COMRADII</span>
       </button>
-      <div className="workspace-switcher">
-        <span className="workspace-avatar">A</span>
-        <span className="workspace-copy"><b>Atlas Biotech</b><small>DEMO MODE</small></span>
-        <ArrowUpRight size={15} aria-hidden="true" />
+      <div className="workspace-switcher" aria-label={`Current workspace: ${workspaceName}`}>
+        <span className="workspace-avatar" aria-hidden="true">{workspaceInitial}</span>
+        <span className="workspace-copy"><b>{workspaceName}</b><small>{workspaceMode}</small></span>
       </div>
-      <div className="nav-section-label">WORKSPACE</div>
-      <nav aria-label="Main navigation" className="side-nav">
-        {links.map(({ id, label, icon: Icon, number }) => (
-          <button key={id} onClick={() => onNavigate(id)} className={`nav-link ${active === id ? "active" : ""}`} data-factory={number} aria-current={active === id ? "page" : undefined}>
-            <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
-            <span>{label}</span>
-            {number && <span className="nav-code">{number}</span>}
-          </button>
-        ))}
+      <div className="nav-section-label">YOUR WORKSPACE</div>
+      <nav aria-label="Business workspace" className="side-nav">
+        <NavigationLinks links={businessLinks} active={active} onNavigate={onNavigate} />
       </nav>
+      {showCapstone && <>
+        <div className="sidebar-spacer" />
+        <div className="nav-divider" />
+        <div className="nav-section-label">CAPSTONE SHOWCASE</div>
+        <nav aria-label="Capstone showcase" className="side-nav">
+          <NavigationLinks links={capstoneLinks} active={active} onNavigate={onNavigate} />
+        </nav>
+      </>}
       <div className="sidebar-spacer" />
-      <button className="demo-launch" onClick={onDemo} aria-current={active === "demo" ? "page" : undefined}>
-        <span className="demo-launch-icon"><Sparkles size={16} /></span>
-        <span><b>Guided demo</b><small>Run the five-step story</small></span>
-        <ArrowUpRight size={14} />
-      </button>
-      <div className="nav-divider" />
-      <button className="nav-link quiet"><Settings2 size={17} strokeWidth={1.8} /><span>Workspace settings</span></button>
-      <button className="nav-link quiet"><LifeBuoy size={17} strokeWidth={1.8} /><span>Help &amp; support</span></button>
-      <div className="profile-row">
-        <span className="profile-avatar">JM</span>
-        <span className="profile-copy"><b>Jordan Miller</b><small>DEMO PROFILE · ADMIN</small></span>
-        <span className="profile-menu">•••</span>
-      </div>
     </aside>
   )
 }

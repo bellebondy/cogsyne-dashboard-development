@@ -1,4 +1,4 @@
-import type { FactoryId } from "./founder-demo-data"
+import { scenarioSteps, type FactoryId } from "./founder-demo-data"
 
 export type JsonObject = Record<string, unknown>
 
@@ -9,6 +9,7 @@ export type ApiRequestResult = {
   upstreamResponded: boolean
   ok: boolean
   durationMs: number
+  requestedAt: string
   payload: unknown
   error?: string
 }
@@ -18,6 +19,35 @@ export type StepExecutionResult = {
   payload: JsonObject | null
   successful: boolean
   backendStatus: string
+}
+
+export type DemoActivityItem = {
+  id: string
+  label: string
+  request: ApiRequestResult
+}
+
+export function getDemoActivity(
+  configRequest: ApiRequestResult | null,
+  healthRequest: ApiRequestResult | null,
+  stepResults: Partial<Record<number, StepExecutionResult>>,
+): DemoActivityItem[] {
+  const activity: DemoActivityItem[] = []
+  if (configRequest) activity.push({ id: "config", label: "Backend configuration check", request: configRequest })
+  if (healthRequest) activity.push({ id: "health", label: "Assessment service health check", request: healthRequest })
+
+  for (const [index, result] of Object.entries(stepResults)) {
+    const step = scenarioSteps[Number(index)]
+    if (result && step) {
+      activity.push({
+        id: `step-${index}`,
+        label: `Workflow · ${step.title.replace(/^F\d+ /, "")}`,
+        request: result.request,
+      })
+    }
+  }
+
+  return activity.sort((first, second) => Date.parse(second.request.requestedAt) - Date.parse(first.request.requestedAt))
 }
 
 export const factoryPorts: Record<FactoryId, number> = {
@@ -69,6 +99,55 @@ export function getResponseValue(payload: unknown, keys: string[]) {
     if (nested[key] !== undefined) return nested[key]
   }
   return undefined
+}
+
+export function getExecuteTraceHttpStatus(trace: unknown): number | undefined {
+  const candidates: { status: number; depth: number }[] = []
+  const descriptorKeys = new Set(["action", "endpoint", "operation", "path", "request", "requestpath", "route", "url"])
+  const statusKeys = ["httpstatus", "httpstatuscode", "responsestatus", "statuscode", "status"]
+
+  const hasExecuteDescriptor = (value: unknown, depth = 0): boolean => {
+    if (depth > 6 || !value || typeof value !== "object" || Array.isArray(value)) return false
+    for (const [key, entry] of Object.entries(value)) {
+      const normalizedKey = normalize(key)
+      if ((descriptorKeys.has(normalizedKey) || normalizedKey.includes("execute")) && typeof entry === "string" && /execute/i.test(entry)) return true
+      if (!Array.isArray(entry) && hasExecuteDescriptor(entry, depth + 1)) return true
+    }
+    return false
+  }
+
+  const readStatus = (value: JsonObject) => {
+    for (const key of statusKeys) {
+      const raw = Object.entries(value).find(([entryKey]) => normalize(entryKey) === key)?.[1]
+      const match = typeof raw === "number" ? raw : typeof raw === "string" ? raw.match(/(?:HTTP\s*)?(\d{3})/i)?.[1] : undefined
+      const status = typeof match === "number" ? match : typeof match === "string" ? Number(match) : undefined
+      if (status && status >= 100 && status <= 599) return status
+    }
+    return undefined
+  }
+
+  const visit = (value: unknown, inheritedExecuteContext = false, depth = 0) => {
+    if (depth > 6 || !value || typeof value !== "object") return
+    if (Array.isArray(value)) {
+      for (const entry of value) visit(entry, inheritedExecuteContext, depth + 1)
+      return
+    }
+
+    const object = value as JsonObject
+    const executeContext = inheritedExecuteContext || hasExecuteDescriptor(object, depth)
+    const status = readStatus(object)
+    if (executeContext && status !== undefined) candidates.push({ status, depth })
+
+    for (const [key, entry] of Object.entries(object)) {
+      if (entry && typeof entry === "object") {
+        const childContext = Array.isArray(entry) ? inheritedExecuteContext : executeContext || normalize(key).includes("execute")
+        visit(entry, childContext, depth + 1)
+      }
+    }
+  }
+
+  visit(trace)
+  return candidates.sort((first, second) => second.depth - first.depth)[0]?.status
 }
 
 export function getApiError(payload: unknown) {
