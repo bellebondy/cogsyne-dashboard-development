@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: "try{var p=localStorage.getItem('comradii.theme')||'system';if(p!=='light'&&p!=='dark'&&p!=='system')p='system';var t=p==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):p;document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){document.documentElement.dataset.theme='light'}" }} />
+        <script dangerouslySetInnerHTML={{ __html: "try{var p=localStorage.getItem('comradii.theme');if(p!=='dark')p='light';document.documentElement.dataset.theme=p;document.documentElement.style.colorScheme=p}catch(e){document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light'}" }} />
       </head>
       <body className="antialiased">
         {children}

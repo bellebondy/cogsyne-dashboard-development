@@ -1,7 +1,7 @@
 "use client"
 
-import { useRef, useState } from "react"
-import { Search, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ArrowLeft, Search, X } from "lucide-react"
 import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID, factories, scenarioSteps, type FactoryId, type HumanDisposition, type ViewId } from "@/lib/founder-demo-data"
 import { getApiError, getBackendStatus, getUpdatedWorkflowState, isJsonObject, isSuccessfulStepResponse, type ApiRequestResult, type JsonObject, type StepExecutionResult } from "@/lib/demo-api"
 import { FactoryPage } from "./factory-page"
@@ -17,6 +17,7 @@ import { mobileLinks, Sidebar, viewLabels } from "./sidebar"
 import { InitiativeWorkspaceProvider, useInitiativeWorkspace } from "@/lib/initiative-workspace"
 import { InitiativesPage } from "./initiatives-page"
 import { ThemeToggle } from "./theme-toggle"
+import { ExploreDemoMenu } from "./explore-demo-menu"
 import { PlanningDecisionPage } from "./planning-decision-page"
 import { CheesecakeDemoPage } from "./cheesecake-demo-page"
 import { FranklinChat } from "./franklin-chat"
@@ -29,13 +30,14 @@ export default function DashboardApp() {
 }
 
 function DashboardAppShell() {
-  const { loaded, selectedId, selectedDraft, selectInitiative } = useInitiativeWorkspace()
+  const { loaded, drafts, selectedId, selectedDraft, exampleReturnId, selectInitiative, enterExample, leaveExample } = useInitiativeWorkspace()
   const [active, setActive] = useState<ViewId>("overview")
   const [search, setSearch] = useState("")
   const [currentStep, setCurrentStep] = useState(0)
   const [stepResults, setStepResults] = useState<Partial<Record<number, StepExecutionResult>>>({})
   const workflowStateRef = useRef<JsonObject>({})
   const workflowStateSnapshotsRef = useRef<Partial<Record<number, JsonObject>>>({})
+  const previousWorkspaceViewRef = useRef<ViewId>("overview")
   const [disposition, setDisposition] = useState<HumanDisposition | null>(null)
   const [runMessage, setRunMessage] = useState("Ready to connect to the COMRADII demo backend.")
   const [configRequest, setConfigRequest] = useState<ApiRequestResult | null>(null)
@@ -43,6 +45,10 @@ function DashboardAppShell() {
   const [configPayload, setConfigPayload] = useState<unknown>(null)
   const [healthPayload, setHealthPayload] = useState<unknown>(null)
   const [busyAction, setBusyAction] = useState<"checking" | "all" | number | null>(null)
+
+  useEffect(() => {
+    if (loaded && selectedId === CHEESECAKE_DEMO_ID) setActive("example")
+  }, [loaded, selectedId])
 
   const callDemoApi = async (path: string, method: "GET" | "POST" = "GET", state?: JsonObject): Promise<ApiRequestResult> => {
     const startedAt = performance.now()
@@ -222,6 +228,17 @@ function DashboardAppShell() {
     setActive("demo")
     void refreshServices()
   }
+  const openExample = () => {
+    if (selectedId !== CHEESECAKE_DEMO_ID) previousWorkspaceViewRef.current = active
+    enterExample()
+    setSearch("")
+    setActive("example")
+  }
+  const returnToWorkspace = () => {
+    leaveExample()
+    setSearch("")
+    setActive(previousWorkspaceViewRef.current === "example" ? "overview" : previousWorkspaceViewRef.current)
+  }
   const openReadiness = () => {
     setActive("readiness")
   }
@@ -229,8 +246,8 @@ function DashboardAppShell() {
     setSearch("")
     if (!showCapstone && (view === "demo" || view === "showcase")) return setActive("overview")
     if (view === "demo") return openDemo()
+    if (view === "example") return openExample()
     if (view === "showcase") selectInitiative(TECHNICAL_FIXTURE_ID)
-    if (view === "example") selectInitiative(CHEESECAKE_DEMO_ID)
     if ((view === "overview" || view === "F4") && selectedId === TECHNICAL_FIXTURE_ID) selectInitiative(null)
     if (view === "readiness") return openReadiness()
     setActive(view)
@@ -242,6 +259,9 @@ function DashboardAppShell() {
   const contextLabel = selectedDraft?.name ?? (isRestaurantDemo ? "The Cheesecake Factory — Demo Scenario" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical Capstone · Original Test Fixture" : "COMRADII Workspace")
   const topbarContextLabel = isRestaurantDemo ? "Editable illustrative sandbox" : selectedDraft ? "Local planning draft" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical test fixture" : "Initiative planning"
   const workspaceMode = isRestaurantDemo ? "FICTIONAL EXAMPLE SANDBOX" : selectedDraft ? "LOCAL PLANNING DRAFT" : selectedId === TECHNICAL_FIXTURE_ID ? "TECHNICAL TEST FIXTURE" : "YOUR PLANNING WORKSPACE"
+  const sidebarDraft = isRestaurantDemo ? drafts.find((draft) => draft.id === exampleReturnId) ?? null : selectedDraft
+  const sidebarWorkspaceName = isRestaurantDemo ? sidebarDraft?.name ?? "COMRADII Workspace" : contextLabel
+  const sidebarWorkspaceMode = isRestaurantDemo ? sidebarDraft ? "LOCAL PLANNING DRAFT" : exampleReturnId === TECHNICAL_FIXTURE_ID ? "TECHNICAL TEST FIXTURE" : "YOUR PLANNING WORKSPACE" : workspaceMode
   const searchPlaceholder = active === "overview" ? "Search overview..." : active === "demo" ? "Search demo steps..." : active === "showcase" ? "Search factory architecture..." : "Search API activity..."
 
   const content = !loaded ? (
@@ -318,13 +338,14 @@ function DashboardAppShell() {
 
   return (
     <div className="app-shell">
-      <Sidebar active={active} onNavigate={navigateTo} showCapstone={showCapstone} workspaceName={contextLabel} workspaceMode={workspaceMode} workspaceInitial={(selectedDraft?.name ?? "COMRADII").slice(0, 1).toUpperCase()} />
+      <Sidebar active={active} onNavigate={navigateTo} showCapstone={showCapstone} workspaceName={sidebarWorkspaceName} workspaceMode={sidebarWorkspaceMode} workspaceInitial={(sidebarDraft?.name ?? "COMRADII").slice(0, 1).toUpperCase()} />
       <main className="main-area">
         <header className="topbar">
           <div className="mobile-brand"><span className="brand-mark"><span /><span /><span /></span><span className="mobile-brand-name">COMRADII</span>{isRestaurantDemo && <span className="mobile-demo-badge">ILLUSTRATIVE DEMO</span>}</div>
           <div className="breadcrumb"><span>{contextLabel}</span><span className="breadcrumb-slash">/</span><b>{viewLabels[active]}</b></div>
           <div className="topbar-actions">
             {searchable ? <label className="search-field"><Search size={16} aria-hidden="true" /><input aria-label="Search the current page" placeholder={searchPlaceholder} value={search} onChange={(event) => setSearch(event.target.value)} />{search && <button type="button" className="search-clear" onClick={() => setSearch("")} aria-label="Clear search"><X size={13} aria-hidden="true" /></button>}</label> : <span className="topbar-workspace-label">{topbarContextLabel}</span>}
+            {isRestaurantDemo ? <button type="button" className="return-workspace-button" onClick={returnToWorkspace}><ArrowLeft size={15} aria-hidden="true" /><span>Return to My Workspace</span></button> : <ExploreDemoMenu onExplore={openExample} />}
             <ThemeToggle />
           </div>
         </header>

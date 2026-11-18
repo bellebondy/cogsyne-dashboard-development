@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { CHEESECAKE_DEMO_ID } from "@/lib/founder-demo-data"
+import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID } from "@/lib/founder-demo-data"
 import { assessmentAreas, createCheesecakeExampleDraft, type AssessmentAreaId, type InitiativeDraft, type PlanningActivity } from "@/lib/planning-model"
 
 const STORAGE_KEY = "comradii.initiative-workspace.v2"
@@ -10,7 +10,7 @@ const LEGACY_STORAGE_KEY = "comradii.initiative-workspace.v1"
 export { assessmentAreas }
 export type { AssessmentAreaId, InitiativeDraft }
 
-type StoredWorkspace = { drafts: InitiativeDraft[]; selectedId: string | null; exampleDraft?: InitiativeDraft }
+type StoredWorkspace = { drafts: InitiativeDraft[]; selectedId: string | null; exampleDraft?: InitiativeDraft; exampleReturnId?: string | null }
 type WorkspaceValue = StoredWorkspace & {
   loaded: boolean
   selectedDraft: InitiativeDraft | null
@@ -19,6 +19,8 @@ type WorkspaceValue = StoredWorkspace & {
   deleteDraft: (id: string) => void
   selectInitiative: (id: string | null) => void
   resetExample: () => void
+  enterExample: () => void
+  leaveExample: () => void
   exportDraft: (draft: InitiativeDraft) => void
 }
 
@@ -62,6 +64,7 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
   const [drafts, setDrafts] = useState<InitiativeDraft[]>([])
   const [exampleDraft, setExampleDraft] = useState<InitiativeDraft>(() => createCheesecakeExampleDraft())
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [exampleReturnId, setExampleReturnId] = useState<string | null>(null)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -76,13 +79,16 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
           const example = normalizeDraft(stored.exampleDraft)
           setExampleDraft(example?.id === CHEESECAKE_DEMO_ID ? { ...createCheesecakeExampleDraft(), ...example, source: "illustrative" } : createCheesecakeExampleDraft())
           const storedSelected = stored.selectedId === "atlas-example" ? CHEESECAKE_DEMO_ID : typeof stored.selectedId === "string" ? stored.selectedId : null
-          setSelectedId(storedSelected === CHEESECAKE_DEMO_ID || storedSelected === "technical-test-fixture" || existingDrafts.some((draft) => draft.id === storedSelected) ? storedSelected : null)
+          setSelectedId(storedSelected === CHEESECAKE_DEMO_ID || storedSelected === TECHNICAL_FIXTURE_ID || existingDrafts.some((draft) => draft.id === storedSelected) ? storedSelected : null)
+          const storedReturnId = typeof stored.exampleReturnId === "string" ? stored.exampleReturnId : null
+          setExampleReturnId(storedReturnId === TECHNICAL_FIXTURE_ID || existingDrafts.some((draft) => draft.id === storedReturnId) ? storedReturnId : null)
         }
       }
     } catch {
       setDrafts([])
       setExampleDraft(createCheesecakeExampleDraft())
       setSelectedId(null)
+      setExampleReturnId(null)
     } finally {
       setLoaded(true)
     }
@@ -91,11 +97,11 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
   useEffect(() => {
     if (!loaded) return
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, drafts, selectedId, exampleDraft }))
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, drafts, selectedId, exampleDraft, exampleReturnId }))
     } catch {
       // Browser storage can be unavailable in private or restricted browsing modes.
     }
-  }, [drafts, exampleDraft, loaded, selectedId])
+  }, [drafts, exampleDraft, exampleReturnId, loaded, selectedId])
 
   const saveDraft = useCallback<WorkspaceValue["saveDraft"]>((input) => {
     const existing = input.id ? drafts.find((draft) => draft.id === input.id) : undefined
@@ -147,6 +153,17 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
     setSelectedId(CHEESECAKE_DEMO_ID)
   }, [])
 
+  const enterExample = useCallback(() => {
+    if (selectedId !== CHEESECAKE_DEMO_ID) setExampleReturnId(selectedId)
+    setSelectedId(CHEESECAKE_DEMO_ID)
+  }, [selectedId])
+
+  const leaveExample = useCallback(() => {
+    const returnId = exampleReturnId === TECHNICAL_FIXTURE_ID || drafts.some((draft) => draft.id === exampleReturnId) ? exampleReturnId : null
+    setSelectedId((current) => current === CHEESECAKE_DEMO_ID ? returnId : current)
+    setExampleReturnId(null)
+  }, [drafts, exampleReturnId])
+
   const exportDraft = useCallback((draft: InitiativeDraft) => {
     const file = new Blob([JSON.stringify({ schemaVersion: 2, exportedAt: new Date().toISOString(), classification: draft.source === "illustrative" ? "fictional illustrative planning data; not verified" : "user-entered local planning data; not verified", initiative: draft }, null, 2)], { type: "application/json" })
     const url = URL.createObjectURL(file)
@@ -171,8 +188,11 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
     deleteDraft,
     selectInitiative: setSelectedId,
     resetExample,
+    enterExample,
+    leaveExample,
+    exampleReturnId,
     exportDraft,
-  }), [deleteDraft, drafts, exampleDraft, exportDraft, loaded, resetExample, saveDraft, selectedDraft, selectedId, updateDraft])
+  }), [deleteDraft, drafts, enterExample, exampleDraft, exampleReturnId, exportDraft, leaveExample, loaded, resetExample, saveDraft, selectedDraft, selectedId, updateDraft])
 
   return <InitiativeWorkspaceContext.Provider value={value}>{children}</InitiativeWorkspaceContext.Provider>
 }
