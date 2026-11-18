@@ -31,8 +31,8 @@ export function ScenarioMetric({ label, value, unit, detail }: { label: string; 
 export function DemoModeBanner() {
   return (
     <div className="global-demo-banner" role="status">
-      <strong>DEMO MODE</strong>
-      <span>Dashboard scenario fixtures remain SIMULATED. Guided Demo shows LIVE results only when the Cogsyne AI Backend returns an actual response; scenario data is labeled separately.</span>
+      <strong>ILLUSTRATIVE DEMO</strong>
+      <span>The Cheesecake Factory scenario is fictional and is not an assessment. Service checks display only actual backend responses; this demo does not authorize production actions.</span>
     </div>
   )
 }

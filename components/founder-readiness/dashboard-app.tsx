@@ -1,19 +1,33 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Bell, ChevronDown, CircleHelp, Command, Search, X } from "lucide-react"
-import { factories, scenarioSteps, type FactoryId, type HumanDisposition, type ViewId } from "@/lib/founder-demo-data"
+import { Search, X } from "lucide-react"
+import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID, factories, scenarioSteps, type FactoryId, type HumanDisposition, type ViewId } from "@/lib/founder-demo-data"
 import { getApiError, getBackendStatus, getUpdatedWorkflowState, isJsonObject, isSuccessfulStepResponse, type ApiRequestResult, type JsonObject, type StepExecutionResult } from "@/lib/demo-api"
 import { FactoryPage } from "./factory-page"
 import { GuidedDemoPage } from "./guided-demo-page"
 import { HumanDecisionPage } from "./human-decision-page"
 import { OverviewPage } from "./overview-page"
-import { DemoModeBanner } from "./shared"
-import { Sidebar, viewLabels } from "./sidebar"
+import { ReadinessPage } from "./readiness-page"
+import { EvidenceActivityPage } from "./evidence-activity-page"
+import { CapstoneShowcasePage } from "./capstone-showcase-page"
+import { mobileLinks, Sidebar, viewLabels } from "./sidebar"
+import { InitiativeWorkspaceProvider, useInitiativeWorkspace } from "@/lib/initiative-workspace"
+import { InitiativesPage } from "./initiatives-page"
+import { ThemeToggle } from "./theme-toggle"
+import { PlanningDecisionPage } from "./planning-decision-page"
+import { CheesecakeDemoPage } from "./cheesecake-demo-page"
+import { FranklinChat } from "./franklin-chat"
 
 const isFactoryView = (view: ViewId): view is FactoryId => factories.some((factory) => factory.id === view)
+const showCapstone = process.env.NEXT_PUBLIC_SHOW_CAPSTONE !== "false"
 
 export default function DashboardApp() {
+  return <InitiativeWorkspaceProvider><DashboardAppShell /></InitiativeWorkspaceProvider>
+}
+
+function DashboardAppShell() {
+  const { selectedId, selectedDraft, selectInitiative } = useInitiativeWorkspace()
   const [active, setActive] = useState<ViewId>("overview")
   const [search, setSearch] = useState("")
   const [currentStep, setCurrentStep] = useState(0)
@@ -21,7 +35,7 @@ export default function DashboardApp() {
   const workflowStateRef = useRef<JsonObject>({})
   const workflowStateSnapshotsRef = useRef<Partial<Record<number, JsonObject>>>({})
   const [disposition, setDisposition] = useState<HumanDisposition | null>(null)
-  const [runMessage, setRunMessage] = useState("Ready to connect to the Cogsyne AI Backend.")
+  const [runMessage, setRunMessage] = useState("Ready to connect to the COMRADII demo backend.")
   const [configRequest, setConfigRequest] = useState<ApiRequestResult | null>(null)
   const [healthRequest, setHealthRequest] = useState<ApiRequestResult | null>(null)
   const [configPayload, setConfigPayload] = useState<unknown>(null)
@@ -30,6 +44,7 @@ export default function DashboardApp() {
 
   const callDemoApi = async (path: string, method: "GET" | "POST" = "GET", state?: JsonObject): Promise<ApiRequestResult> => {
     const startedAt = performance.now()
+    const requestedAt = new Date().toISOString()
     try {
       const response = await fetch(`/api/demo/${path}`, {
         method,
@@ -47,6 +62,7 @@ export default function DashboardApp() {
         upstreamResponded: response.headers.has("x-demo-upstream-status"),
         ok: response.ok,
         durationMs: Math.round(performance.now() - startedAt),
+        requestedAt,
         payload,
         error: response.ok ? undefined : getApiError(payload) ?? `Request failed with HTTP ${response.status}.`,
       }
@@ -58,6 +74,7 @@ export default function DashboardApp() {
         upstreamResponded: false,
         ok: false,
         durationMs: Math.round(performance.now() - startedAt),
+        requestedAt,
         payload: null,
         error: "The Next.js API proxy could not be reached.",
       }
@@ -99,7 +116,7 @@ export default function DashboardApp() {
       : stateBeforeStep
 
     setCurrentStep(index)
-    setRunMessage(`Running ${scenarioSteps[index].title} using the Cogsyne AI Workflow Engine...`)
+    setRunMessage(`Running ${scenarioSteps[index].title} through the configured demo workflow...`)
     const request = await callDemoApi(`step/${index + 1}`, "POST", stateForRequest)
     const payload = isJsonObject(request.payload) ? request.payload : null
     const successful = isSuccessfulStepResponse(payload, request.ok)
@@ -197,69 +214,131 @@ export default function DashboardApp() {
   }
 
   const openDemo = () => {
+    if (!showCapstone) return setActive("overview")
+    selectInitiative(TECHNICAL_FIXTURE_ID)
+    setSearch("")
     setActive("demo")
     void refreshServices()
   }
+  const openReadiness = () => {
+    setActive("readiness")
+    void refreshServices()
+  }
+  const navigateTo = (view: ViewId) => {
+    setSearch("")
+    if (!showCapstone && (view === "demo" || view === "showcase")) return setActive("overview")
+    if (view === "demo") return openDemo()
+    if (view === "showcase") selectInitiative(TECHNICAL_FIXTURE_ID)
+    if (view === "example") selectInitiative(CHEESECAKE_DEMO_ID)
+    if ((view === "overview" || view === "F4") && selectedId === TECHNICAL_FIXTURE_ID) selectInitiative(null)
+    if (view === "readiness") return openReadiness()
+    setActive(view)
+  }
   const completedSteps = Object.entries(stepResults).filter(([, result]) => result?.successful).map(([index]) => Number(index))
-  const footerStatus = !healthRequest ? "BACKEND NOT CHECKED" : healthRequest.upstreamResponded && healthRequest.ok ? `SERVICES CHECKED · HTTP ${healthRequest.httpStatus}` : "BACKEND UNAVAILABLE"
+  const footerStatus = !healthRequest ? "SERVICE STATUS NOT CHECKED" : healthRequest.upstreamResponded ? healthRequest.ok ? "BACKEND HEALTH RESPONSE RECEIVED" : `BACKEND RESPONDED · HTTP ${healthRequest.httpStatus ?? "—"}` : "BACKEND UNAVAILABLE"
+  const searchable = active === "overview" || active === "demo" || active === "showcase" || active === "evidence"
+  const isRestaurantDemo = selectedId === CHEESECAKE_DEMO_ID
+  const contextLabel = selectedDraft?.name ?? (isRestaurantDemo ? "The Cheesecake Factory — Demo Scenario" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical Capstone · Original Test Fixture" : "COMRADII Workspace")
+  const topbarContextLabel = selectedDraft ? "Local planning draft" : isRestaurantDemo ? "Illustrative demo" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical test fixture" : "Initiative planning"
+  const workspaceMode = selectedDraft ? "LOCAL PLANNING DRAFT" : isRestaurantDemo ? "ILLUSTRATIVE DEMO SCENARIO" : selectedId === TECHNICAL_FIXTURE_ID ? "TECHNICAL TEST FIXTURE" : "YOUR PLANNING WORKSPACE"
+  const searchPlaceholder = active === "overview" ? "Search overview..." : active === "demo" ? "Search demo steps..." : active === "showcase" ? "Search factory architecture..." : "Search API activity..."
 
   const content = active === "overview" ? (
-    <OverviewPage onNavigate={setActive} onDemo={openDemo} searchTerm={search} />
-  ) : active === "demo" ? (
-      <GuidedDemoPage
-        currentStep={currentStep}
-        completedSteps={completedSteps}
-        disposition={disposition}
-        onDispositionChange={changeDisposition}
-        onNavigate={setActive}
-        onSelectStep={(step) => { setCurrentStep(step); setRunMessage(`Viewing ${scenarioSteps[step].title}. This selection alone does not run it.`) }}
-        onRunNext={runNextStep}
-        onRunStep={(step) => { void runSingleStep(step) }}
-        onRunAll={runAllSteps}
-        onReset={resetDemo}
-        runMessage={runMessage}
-        searchTerm={search}
-        stepResults={stepResults}
-        configRequest={configRequest}
-        healthRequest={healthRequest}
-        configPayload={configPayload}
-        healthPayload={healthPayload}
-        onRefreshServices={() => { void refreshServices() }}
-        busy={busyAction !== null}
-        refreshing={busyAction === "checking"}
-        runningAll={busyAction === "all"}
-        runningStep={typeof busyAction === "number" ? busyAction : null}
-      />
+    <OverviewPage
+      onNavigate={navigateTo}
+      onDemo={openDemo}
+      onRefreshServices={() => { void refreshServices() }}
+      searchTerm={search}
+      disposition={disposition}
+      stepResults={stepResults}
+      configRequest={configRequest}
+      healthRequest={healthRequest}
+      healthPayload={healthPayload}
+      refreshing={busyAction === "checking"}
+      actionsDisabled={busyAction !== null}
+    />
+  ) : active === "readiness" ? (
+    <ReadinessPage
+      healthRequest={healthRequest}
+      healthPayload={healthPayload}
+      configRequest={configRequest}
+      configPayload={configPayload}
+      onRefresh={() => { void refreshServices() }}
+      refreshing={busyAction === "checking"}
+      actionsDisabled={busyAction !== null}
+      onNavigate={navigateTo}
+    />
+  ) : active === "evidence" ? (
+    <EvidenceActivityPage configRequest={configRequest} healthRequest={healthRequest} stepResults={stepResults} disposition={disposition} searchTerm={search} onNavigate={navigateTo} />
+  ) : active === "showcase" && showCapstone ? (
+    <CapstoneShowcasePage
+      onNavigate={navigateTo}
+      stepResults={stepResults}
+      healthRequest={healthRequest}
+      healthPayload={healthPayload}
+      configRequest={configRequest}
+      configPayload={configPayload}
+      onRefreshServices={() => { void refreshServices() }}
+      refreshing={busyAction === "checking"}
+      actionsDisabled={busyAction !== null}
+      searchTerm={search}
+    />
+  ) : active === "demo" && showCapstone ? (
+    <GuidedDemoPage
+      currentStep={currentStep}
+      completedSteps={completedSteps}
+      disposition={disposition}
+      onDispositionChange={changeDisposition}
+      onNavigate={navigateTo}
+      onSelectStep={(step) => { setCurrentStep(step); setRunMessage(`Viewing ${scenarioSteps[step].title}. This selection alone does not run it.`) }}
+      onRunNext={runNextStep}
+      onRunStep={(step) => { void runSingleStep(step) }}
+      onRunAll={runAllSteps}
+      onReset={resetDemo}
+      runMessage={runMessage}
+      searchTerm={search}
+      stepResults={stepResults}
+      configRequest={configRequest}
+      healthRequest={healthRequest}
+      configPayload={configPayload}
+      healthPayload={healthPayload}
+      onRefreshServices={() => { void refreshServices() }}
+      busy={busyAction !== null}
+      refreshing={busyAction === "checking"}
+      runningAll={busyAction === "all"}
+      runningStep={typeof busyAction === "number" ? busyAction : null}
+    />
   ) : active === "decision" ? (
-    <HumanDecisionPage disposition={disposition} onDispositionChange={changeDisposition} onNavigate={setActive} />
+    selectedDraft || selectedId !== TECHNICAL_FIXTURE_ID ? <PlanningDecisionPage onNavigate={navigateTo} /> : <HumanDecisionPage disposition={disposition} onDispositionChange={changeDisposition} onNavigate={navigateTo} />
+  ) : active === "example" ? (
+    <CheesecakeDemoPage onNavigate={navigateTo} />
+  ) : active === "F4" ? (
+    <InitiativesPage onNavigate={navigateTo} />
   ) : isFactoryView(active) ? (
-    <FactoryPage factoryId={active} disposition={disposition} onNavigate={setActive} />
+    <FactoryPage factoryId={active} disposition={disposition} onNavigate={navigateTo} />
   ) : null
 
   return (
     <div className="app-shell">
-      <Sidebar active={active} onNavigate={(view) => view === "demo" ? openDemo() : setActive(view)} onDemo={openDemo} />
+      <Sidebar active={active} onNavigate={navigateTo} showCapstone={showCapstone} workspaceName={contextLabel} workspaceMode={workspaceMode} workspaceInitial={(selectedDraft?.name ?? "COMRADII").slice(0, 1).toUpperCase()} />
       <main className="main-area">
         <header className="topbar">
-          <div className="mobile-brand"><span className="brand-mark"><span /><span /><span /></span><span>cogsyne<span className="brand-period">.</span></span></div>
-          <div className="breadcrumb"><span>Atlas Biotech</span><span className="breadcrumb-slash">/</span><b>{viewLabels[active]}</b><ChevronDown size={14} /><span className="top-demo-label">DEMO MODE</span></div>
+          <div className="mobile-brand"><span className="brand-mark"><span /><span /><span /></span><span className="mobile-brand-name">COMRADII</span>{isRestaurantDemo && <span className="mobile-demo-badge">ILLUSTRATIVE DEMO</span>}</div>
+          <div className="breadcrumb"><span>{contextLabel}</span><span className="breadcrumb-slash">/</span><b>{viewLabels[active]}</b></div>
           <div className="topbar-actions">
-            <label className="search-field"><Search size={16} /><input aria-label="Search factories and demo steps" placeholder="Search this page..." value={search} onChange={(event) => setSearch(event.target.value)} /><kbd><Command size={11} /> K</kbd>{search && <button className="search-clear" onClick={() => setSearch("")} aria-label="Clear search"><X size={13} /></button>}</label>
-            <button className="icon-button notification-button" aria-label="Notifications"><Bell size={18} /><i /></button>
-            <button className="help-button"><CircleHelp size={16} /><span>Help</span></button>
-            <span className="top-demo-label mobile-demo-label">DEMO MODE</span>
-            <span className="top-avatar">JM</span>
+            {searchable ? <label className="search-field"><Search size={16} aria-hidden="true" /><input aria-label="Search the current page" placeholder={searchPlaceholder} value={search} onChange={(event) => setSearch(event.target.value)} />{search && <button type="button" className="search-clear" onClick={() => setSearch("")} aria-label="Clear search"><X size={13} aria-hidden="true" /></button>}</label> : <span className="topbar-workspace-label">{topbarContextLabel}</span>}
+            <ThemeToggle />
           </div>
         </header>
-        <div className="mobile-nav" aria-label="Dashboard pages">
-          {(["overview", "F4", "F6", "decision", "F1", "F11", "demo"] as ViewId[]).map((id) => <button key={id} onClick={() => id === "demo" ? openDemo() : setActive(id)} className={active === id ? "selected" : ""}>{viewLabels[id]}</button>)}
-        </div>
-        <DemoModeBanner />
+        <nav className="mobile-nav" aria-label="Dashboard pages">
+          {mobileLinks.filter(({ id }) => showCapstone || (id !== "showcase" && id !== "demo")).map(({ id, label }) => <button type="button" key={id} onClick={() => navigateTo(id)} className={active === id || (id === "F4" && active === "example") ? "selected" : ""} aria-current={active === id || (id === "F4" && active === "example") ? "page" : undefined}>{label}</button>)}
+        </nav>
         <div className="content-area">
           {content}
-          <footer className="main-footer"><span>© 2026 Cogsyne <i>·</i> Factory workflow demo</span><span><span className="footer-status-dot" /> DEMO MODE <i>·</i> {footerStatus}</span></footer>
+          <footer className="main-footer"><span>© 2026 COMRADII <i>·</i> AI transformation planning</span>{["readiness", "evidence", "showcase", "demo"].includes(active) && <span><span className={`footer-status-dot ${healthRequest ? healthRequest.upstreamResponded ? healthRequest.ok ? "connected" : "response" : "disconnected" : "unchecked"}`} /> {footerStatus}</span>}</footer>
         </div>
       </main>
+      <FranklinChat pageId={active} />
     </div>
   )
 }

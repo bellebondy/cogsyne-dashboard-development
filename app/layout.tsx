@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Cogsyne — Factory Workflow Demo',
-  description: 'Explore Cogsyne’s five-step factory workflow with server-proxied backend responses and clearly separated simulated scenario data.',
+  title: 'COMRADII — AI Transformation Planning',
+  description: 'Plan AI initiatives, understand what needs review, organize evidence, and make informed decisions with human oversight.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -26,8 +26,11 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  colorScheme: 'light',
-  themeColor: '#f6f5fc',
+  colorScheme: 'light dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f6f5fc' },
+    { media: '(prefers-color-scheme: dark)', color: '#11121c' },
+  ],
   width: 'device-width',
   initialScale: 1,
 }
@@ -38,7 +41,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: "try{var p=localStorage.getItem('comradii.theme')||'system';if(p!=='light'&&p!=='dark'&&p!=='system')p='system';var t=p==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):p;document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){document.documentElement.dataset.theme='light'}" }} />
+      </head>
       <body className="antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

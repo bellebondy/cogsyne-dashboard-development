@@ -1,6 +1,8 @@
 export type FactoryId = "F4" | "F6" | "F1" | "F11"
+export const CHEESECAKE_DEMO_ID = "cheesecake-demo"
+export const TECHNICAL_FIXTURE_ID = "technical-test-fixture"
 export type DemoStepId = FactoryId | "decision"
-export type ViewId = "overview" | "demo" | "decision" | FactoryId
+export type ViewId = "overview" | "readiness" | "evidence" | "showcase" | "demo" | "decision" | "example" | FactoryId
 export type DataSource = "SIMULATED" | "LIVE"
 export type HumanDisposition = "proceed" | "request-evidence" | "hold"
 
@@ -39,10 +41,14 @@ export const demoScenario = {
 } as const
 
 export const humanDispositions: { value: HumanDisposition; label: string; description: string }[] = [
-  { value: "proceed", label: "Proceed to People Assurance", description: "Carry the finding forward for assessment. This does not authorize execution." },
-  { value: "request-evidence", label: "Request more evidence", description: "Keep the talent recommendation pending while evidence is gathered." },
-  { value: "hold", label: "Hold for review", description: "Pause the scenario and leave the disposition open for further review." },
+  { value: "proceed", label: "Continue to workforce review", description: "Carry the simulated finding forward. This does not authorize execution." },
+  { value: "request-evidence", label: "Request more evidence", description: "Pause the recommendation while additional evidence is gathered." },
+  { value: "hold", label: "Hold for review", description: "Pause the scenario pending another human review." },
 ]
+
+export function getHumanDispositionLabel(value: HumanDisposition | null) {
+  return humanDispositions.find((option) => option.value === value)?.label ?? "Not selected"
+}
 
 export const scenarioSteps: { id: DemoStepId; title: string; subtitle: string; description: string; view: ViewId }[] = [
   { id: "F4", title: "F4 Project", subtitle: "Team 2 · Project", description: "Define the initiative objective and 10-to-8-minute target.", view: "F4" },
