@@ -34,15 +34,25 @@ export const viewLabels: Record<ViewId, string> = {
   F1: "People & Resources",
   F11: "Talent & Resource Recommendations",
   demo: "Five-step API demo",
+  "capstone-F4": "F4 Project · Technical Capstone",
+  "capstone-F6": "F6 Performance · Technical Capstone",
+  "capstone-F1": "F1 People · Technical Capstone",
+  "capstone-F11": "F11 Talent · Technical Capstone",
+  "capstone-decision": "Human Decision · Technical Capstone",
+  "capstone-evidence": "Evidence & Activity · Technical Capstone",
+  "customer-initiatives": "AI Initiatives",
 }
 
 function NavigationLinks({ links, active, onNavigate }: { links: typeof businessLinks; active: ViewId; onNavigate: (id: ViewId) => void }) {
-  return links.map(({ id, label, icon: Icon }) => (
-    <button key={id} onClick={() => onNavigate(id)} className={`nav-link ${active === id || (id === "F4" && active === "example") || (id === "F1" && active === "F11") ? "active" : ""}`} aria-current={active === id || (id === "F4" && active === "example") || (id === "F1" && active === "F11") ? "page" : undefined}>
-      <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
-      <span>{label}</span>
-    </button>
-  ))
+  return links.map(({ id, label, icon: Icon }) => {
+    const isActive = active === id || (id === "F4" && active === "example") || (id === "F1" && active === "F11") || (id === "demo" && typeof active === "string" && active.startsWith("capstone-"))
+    return (
+      <button key={id} onClick={() => onNavigate(id)} className={`nav-link ${isActive ? "active" : ""}`} aria-current={isActive ? "page" : undefined}>
+        <Icon size={17} strokeWidth={1.8} aria-hidden="true" />
+        <span>{label}</span>
+      </button>
+    )
+  })
 }
 
 export function Sidebar({ active, onNavigate, showCapstone, workspaceName, workspaceMode, workspaceInitial }: { active: ViewId; onNavigate: (id: ViewId) => void; showCapstone: boolean; workspaceName: string; workspaceMode: string; workspaceInitial: string }) {

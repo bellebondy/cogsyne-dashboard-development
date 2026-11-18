@@ -1,24 +1,35 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { CHEESECAKE_DEMO_ID } from "@/lib/founder-demo-data"
+import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID } from "@/lib/founder-demo-data"
 import { assessmentAreas, createCheesecakeExampleDraft, type AssessmentAreaId, type InitiativeDraft, type PlanningActivity } from "@/lib/planning-model"
 
-const STORAGE_KEY = "comradii.initiative-workspace.v2"
-const LEGACY_STORAGE_KEY = "comradii.initiative-workspace.v1"
+const STORAGE_KEY = "comradii.initiative-workspace.v3"
+const LEGACY_STORAGE_KEYS = ["comradii.initiative-workspace.v2", "comradii.initiative-workspace.v1"]
+
+type WorkspaceMode = "customer" | "example" | "capstone"
+type PersistentWorkspaceMode = Exclude<WorkspaceMode, "capstone">
 
 export { assessmentAreas }
 export type { AssessmentAreaId, InitiativeDraft }
 
-type StoredWorkspace = { drafts: InitiativeDraft[]; selectedId: string | null; exampleDraft?: InitiativeDraft }
-type WorkspaceValue = StoredWorkspace & {
+type StoredWorkspace = { drafts: InitiativeDraft[]; selectedId: string | null; exampleDraft?: InitiativeDraft; mode?: PersistentWorkspaceMode; exampleMode?: boolean }
+type WorkspaceValue = Omit<StoredWorkspace, "mode"> & {
   loaded: boolean
+  mode: WorkspaceMode
+  isExampleMode: boolean
+  isCapstoneMode: boolean
+  customerDraft: InitiativeDraft | null
   selectedDraft: InitiativeDraft | null
   saveDraft: (draft: Partial<InitiativeDraft> & Pick<InitiativeDraft, "name" | "goal" | "objective" | "department" | "challenge">) => InitiativeDraft
   updateDraft: (draft: InitiativeDraft, activitySummary?: string) => void
   deleteDraft: (id: string) => void
   selectInitiative: (id: string | null) => void
   resetExample: () => void
+  enterExample: () => void
+  leaveExample: () => void
+  enterCapstone: () => void
+  leaveCapstone: () => void
   exportDraft: (draft: InitiativeDraft) => void
 }
 
@@ -62,27 +73,39 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
   const [drafts, setDrafts] = useState<InitiativeDraft[]>([])
   const [exampleDraft, setExampleDraft] = useState<InitiativeDraft>(() => createCheesecakeExampleDraft())
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [mode, setMode] = useState<WorkspaceMode>("customer")
+  const [capstoneReturnMode, setCapstoneReturnMode] = useState<PersistentWorkspaceMode>("customer")
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     try {
-      const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.localStorage.getItem(LEGACY_STORAGE_KEY)
+      const raw = window.localStorage.getItem(STORAGE_KEY) ?? LEGACY_STORAGE_KEYS.map((key) => window.localStorage.getItem(key)).find(Boolean)
       if (raw) {
         const parsed: unknown = JSON.parse(raw)
         if (isObject(parsed)) {
-          const stored = parsed as Partial<StoredWorkspace>
-          const existingDrafts = Array.isArray(stored.drafts) ? stored.drafts.map(normalizeDraft).filter((draft): draft is InitiativeDraft => draft !== null && draft.id !== CHEESECAKE_DEMO_ID) : []
+          const stored = parsed as Partial<StoredWorkspace> & { exampleReturnId?: unknown }
+          const existingDrafts = Array.isArray(stored.drafts)
+            ? stored.drafts.map(normalizeDraft).filter((draft): draft is InitiativeDraft => draft !== null && draft.id !== CHEESECAKE_DEMO_ID && draft.id !== TECHNICAL_FIXTURE_ID)
+            : []
           setDrafts(existingDrafts)
           const example = normalizeDraft(stored.exampleDraft)
           setExampleDraft(example?.id === CHEESECAKE_DEMO_ID ? { ...createCheesecakeExampleDraft(), ...example, source: "illustrative" } : createCheesecakeExampleDraft())
-          const storedSelected = stored.selectedId === "atlas-example" ? CHEESECAKE_DEMO_ID : typeof stored.selectedId === "string" ? stored.selectedId : null
-          setSelectedId(storedSelected === CHEESECAKE_DEMO_ID || storedSelected === "technical-test-fixture" || existingDrafts.some((draft) => draft.id === storedSelected) ? storedSelected : null)
+
+          const rawSelectedId = stored.selectedId === "atlas-example" ? CHEESECAKE_DEMO_ID : typeof stored.selectedId === "string" ? stored.selectedId : null
+          const legacyReturnId = typeof stored.exampleReturnId === "string" ? stored.exampleReturnId : null
+          const customerSelection = rawSelectedId === CHEESECAKE_DEMO_ID || rawSelectedId === TECHNICAL_FIXTURE_ID ? legacyReturnId : rawSelectedId
+          setSelectedId(existingDrafts.some((draft) => draft.id === customerSelection) ? customerSelection : null)
+          const restoredMode = stored.mode === "example" || stored.exampleMode === true || rawSelectedId === CHEESECAKE_DEMO_ID ? "example" : "customer"
+          setMode(restoredMode)
+          setCapstoneReturnMode(restoredMode)
         }
       }
     } catch {
       setDrafts([])
       setExampleDraft(createCheesecakeExampleDraft())
       setSelectedId(null)
+      setMode("customer")
+      setCapstoneReturnMode("customer")
     } finally {
       setLoaded(true)
     }
@@ -91,11 +114,12 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
   useEffect(() => {
     if (!loaded) return
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 2, drafts, selectedId, exampleDraft }))
+      const persistentMode = mode === "capstone" ? capstoneReturnMode : mode
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 3, drafts, selectedId, exampleDraft, mode: persistentMode }))
     } catch {
       // Browser storage can be unavailable in private or restricted browsing modes.
     }
-  }, [drafts, exampleDraft, loaded, selectedId])
+  }, [capstoneReturnMode, drafts, exampleDraft, loaded, mode, selectedId])
 
   const saveDraft = useCallback<WorkspaceValue["saveDraft"]>((input) => {
     const existing = input.id ? drafts.find((draft) => draft.id === input.id) : undefined
@@ -124,6 +148,7 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
       ? current.map((item) => item.id === draft.id ? draft : item)
       : [draft, ...current])
     setSelectedId(draft.id)
+    setMode("customer")
     return draft
   }, [drafts])
 
@@ -144,8 +169,29 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
 
   const resetExample = useCallback(() => {
     setExampleDraft(createCheesecakeExampleDraft())
-    setSelectedId(CHEESECAKE_DEMO_ID)
   }, [])
+
+  const enterExample = useCallback(() => {
+    setMode("example")
+  }, [])
+
+  const leaveExample = useCallback(() => {
+    setMode((current) => current === "example" ? "customer" : current)
+  }, [])
+
+  const enterCapstone = useCallback(() => {
+    if (mode !== "capstone") setCapstoneReturnMode(mode)
+    setMode("capstone")
+  }, [mode])
+
+  const leaveCapstone = useCallback(() => {
+    setMode((current) => current === "capstone" ? capstoneReturnMode : current)
+  }, [capstoneReturnMode])
+
+  const selectInitiative = useCallback((id: string | null) => {
+    setSelectedId(id !== null && drafts.some((draft) => draft.id === id) ? id : null)
+    setMode("customer")
+  }, [drafts])
 
   const exportDraft = useCallback((draft: InitiativeDraft) => {
     const file = new Blob([JSON.stringify({ schemaVersion: 2, exportedAt: new Date().toISOString(), classification: draft.source === "illustrative" ? "fictional illustrative planning data; not verified" : "user-entered local planning data; not verified", initiative: draft }, null, 2)], { type: "application/json" })
@@ -157,22 +203,29 @@ export function InitiativeWorkspaceProvider({ children }: { children: ReactNode 
     URL.revokeObjectURL(url)
   }, [])
 
-  const selectedDraft = selectedId === CHEESECAKE_DEMO_ID
-    ? exampleDraft
-    : drafts.find((draft) => draft.id === selectedId) ?? null
+  const customerDraft = drafts.find((draft) => draft.id === selectedId) ?? null
+  const selectedDraft = mode === "example" ? exampleDraft : mode === "customer" ? customerDraft : null
   const value = useMemo<WorkspaceValue>(() => ({
     drafts,
     selectedId,
     selectedDraft,
+    customerDraft,
     exampleDraft,
+    mode,
+    isExampleMode: mode === "example",
+    isCapstoneMode: mode === "capstone",
     loaded,
     saveDraft,
     updateDraft,
     deleteDraft,
-    selectInitiative: setSelectedId,
+    selectInitiative,
     resetExample,
+    enterExample,
+    leaveExample,
+    enterCapstone,
+    leaveCapstone,
     exportDraft,
-  }), [deleteDraft, drafts, exampleDraft, exportDraft, loaded, resetExample, saveDraft, selectedDraft, selectedId, updateDraft])
+  }), [customerDraft, deleteDraft, drafts, enterCapstone, enterExample, exampleDraft, exportDraft, leaveCapstone, leaveExample, loaded, mode, resetExample, saveDraft, selectedDraft, selectedId, selectInitiative, updateDraft])
 
   return <InitiativeWorkspaceContext.Provider value={value}>{children}</InitiativeWorkspaceContext.Provider>
 }

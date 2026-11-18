@@ -145,7 +145,7 @@ export function CheesecakeDemoPage({ onNavigate }: { onNavigate: (id: ViewId) =>
         </div>}
         <div className="guided-demo-navigation">
           <button className="button button-outline" onClick={() => setActiveStage((value) => Math.max(0, value - 1))} disabled={activeStage === 0}><ArrowLeft size={14} aria-hidden="true" />Previous</button>
-          {activeStage < stages.length - 1 ? <button className="button button-dark" onClick={() => setActiveStage((value) => Math.min(stages.length - 1, value + 1))}>Continue <ArrowRight size={14} aria-hidden="true" /></button> : <button className="button button-dark" onClick={() => onNavigate("F4")}>Plan your own initiative <ArrowRight size={14} aria-hidden="true" /></button>}
+          {activeStage < stages.length - 1 ? <button className="button button-dark" onClick={() => setActiveStage((value) => Math.min(stages.length - 1, value + 1))}>Continue <ArrowRight size={14} aria-hidden="true" /></button> : <button className="button button-dark" onClick={() => onNavigate("customer-initiatives")}>Plan your own initiative <ArrowRight size={14} aria-hidden="true" /></button>}
         </div>
       </section>
 

@@ -19,7 +19,7 @@ const architecture = [
 ] as const
 
 const demoFactoryIds: FactoryId[] = ["F1", "F4", "F6", "F11"]
-const detailViewByFactory: Record<FactoryId, ViewId> = { F1: "F1", F4: "F4", F6: "F6", F11: "F11" }
+const detailViewByFactory: Record<FactoryId, ViewId> = { F1: "capstone-F1", F4: "capstone-F4", F6: "capstone-F6", F11: "capstone-F11" }
 const sharedSystems = ["Cogsyne Assurance Graph", "Evidence Management", "Workflow and Gate Engine", "Human Disposition and Remediation", "Agent Factory and Orchestration", "Reporting and Audit", "Identity and Administration", "Integration Framework"]
 
 export function CapstoneShowcasePage({ onNavigate, stepResults, healthRequest, healthPayload, configRequest, configPayload, onRefreshServices, refreshing, actionsDisabled, searchTerm }: {
@@ -101,8 +101,8 @@ export function CapstoneShowcasePage({ onNavigate, stepResults, healthRequest, h
         <div className="section-heading"><div><div className="overline">TECHNICAL INTEGRATION</div><h2>What this implementation demonstrates</h2></div><Code2 size={18} aria-hidden="true" /></div>
         <div className="showcase-integration-grid">
           <article className="panel showcase-integration-card"><span className="integration-icon"><Workflow size={18} aria-hidden="true" /></span><h3>Server-side API proxy</h3><p>Backend requests stay behind the Next.js proxy and use the server-configured backend URL. The browser does not call factory services directly.</p><code>GET /api/config · GET /api/health · POST /api/step/1–5</code></article>
-          <article className="panel showcase-integration-card"><span className="integration-icon"><CircleCheck size={18} aria-hidden="true" /></span><h3>Inspectable responses</h3><p>Workflow details expose actual HTTP status, response body, duration, backend status, and trace fields when the service returns them.</p><button className="text-button" onClick={() => onNavigate("evidence")}>Open evidence and activity <ArrowRight size={14} aria-hidden="true" /></button></article>
-          <article className="panel showcase-integration-card"><span className="integration-icon"><ShieldCheck size={18} aria-hidden="true" /></span><h3>Human review boundary</h3><p>A disposition is chosen by a person and sent with the third workflow request. It is not approval to hire, assign, or execute.</p><button className="text-button" onClick={() => onNavigate("decision")}>Review the decision step <ArrowRight size={14} aria-hidden="true" /></button></article>
+          <article className="panel showcase-integration-card"><span className="integration-icon"><CircleCheck size={18} aria-hidden="true" /></span><h3>Inspectable responses</h3><p>Workflow details expose actual HTTP status, response body, duration, backend status, and trace fields when the service returns them.</p><button className="text-button" onClick={() => onNavigate("capstone-evidence")}>Open evidence and activity <ArrowRight size={14} aria-hidden="true" /></button></article>
+          <article className="panel showcase-integration-card"><span className="integration-icon"><ShieldCheck size={18} aria-hidden="true" /></span><h3>Human review boundary</h3><p>A disposition is chosen by a person and sent with the third workflow request. It is not approval to hire, assign, or execute.</p><button className="text-button" onClick={() => onNavigate("capstone-decision")}>Review the decision step <ArrowRight size={14} aria-hidden="true" /></button></article>
         </div>
       </section>
 

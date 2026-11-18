@@ -2,7 +2,8 @@ export type FactoryId = "F4" | "F6" | "F1" | "F11"
 export const CHEESECAKE_DEMO_ID = "cheesecake-demo"
 export const TECHNICAL_FIXTURE_ID = "technical-test-fixture"
 export type DemoStepId = FactoryId | "decision"
-export type ViewId = "overview" | "readiness" | "performance" | "people" | "evidence" | "showcase" | "demo" | "decision" | "example" | FactoryId
+export type CapstoneViewId = `capstone-${FactoryId}` | "capstone-decision" | "capstone-evidence"
+export type ViewId = "overview" | "readiness" | "performance" | "people" | "evidence" | "showcase" | "demo" | "decision" | "example" | "customer-initiatives" | FactoryId | CapstoneViewId
 export type DataSource = "SIMULATED" | "LIVE"
 export type HumanDisposition = "proceed" | "request-evidence" | "hold"
 
@@ -51,9 +52,9 @@ export function getHumanDispositionLabel(value: HumanDisposition | null) {
 }
 
 export const scenarioSteps: { id: DemoStepId; title: string; subtitle: string; description: string; view: ViewId }[] = [
-  { id: "F4", title: "F4 Project", subtitle: "Team 2 · Project", description: "Define the initiative objective and 10-to-8-minute target.", view: "F4" },
-  { id: "F6", title: "F6 Performance", subtitle: "Team 2 · Performance", description: "Observe 9 minutes per case and make the 1-minute gap visible.", view: "F6" },
-  { id: "decision", title: "Human Decision", subtitle: "Human disposition", description: "Choose a local demo disposition before proceeding downstream.", view: "decision" },
-  { id: "F1", title: "F1 People Assurance", subtitle: "Team 1 · People Assurance", description: "Assess the simulated qualification claim against the finding.", view: "F1" },
-  { id: "F11", title: "F11 Talent", subtitle: "Team 1 · Talent Assurance & Marketplace", description: "Show the recommendation, expected denial, and Recognition fixture.", view: "F11" },
+  { id: "F4", title: "F4 Project", subtitle: "Team 2 · Project", description: "Define the initiative objective and 10-to-8-minute target.", view: "capstone-F4" },
+  { id: "F6", title: "F6 Performance", subtitle: "Team 2 · Performance", description: "Observe 9 minutes per case and make the 1-minute gap visible.", view: "capstone-F6" },
+  { id: "decision", title: "Human Decision", subtitle: "Human disposition", description: "Choose a local demo disposition before proceeding downstream.", view: "capstone-decision" },
+  { id: "F1", title: "F1 People Assurance", subtitle: "Team 1 · People Assurance", description: "Assess the simulated qualification claim against the finding.", view: "capstone-F1" },
+  { id: "F11", title: "F11 Talent", subtitle: "Team 1 · Talent Assurance & Marketplace", description: "Show the recommendation, expected denial, and Recognition fixture.", view: "capstone-F11" },
 ]

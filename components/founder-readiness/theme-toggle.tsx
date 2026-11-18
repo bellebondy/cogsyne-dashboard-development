@@ -1,54 +1,39 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Check, Monitor, Moon, Sun } from "lucide-react"
+import { Check, Moon, Sun } from "lucide-react"
 
-type ThemePreference = "light" | "dark" | "system"
+type ThemePreference = "light" | "dark"
 const THEME_KEY = "comradii.theme"
 const options: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
   { value: "light", label: "Light", icon: Sun },
   { value: "dark", label: "Dark", icon: Moon },
-  { value: "system", label: "System", icon: Monitor },
 ]
 
-function systemTheme(): "light" | "dark" {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-}
-
 function applyTheme(preference: ThemePreference) {
-  const resolved = preference === "system" ? systemTheme() : preference
-  document.documentElement.dataset.theme = resolved
-  document.documentElement.style.colorScheme = resolved
+  document.documentElement.dataset.theme = preference
+  document.documentElement.style.colorScheme = preference
 }
 
 export function ThemeToggle() {
-  const [preference, setPreference] = useState<ThemePreference>("system")
+  const [preference, setPreference] = useState<ThemePreference>("light")
   const [open, setOpen] = useState(false)
-  const [focusedIndex, setFocusedIndex] = useState(2)
+  const [focusedIndex, setFocusedIndex] = useState(0)
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => {
-    let stored: ThemePreference = "system"
+    let stored: ThemePreference = "light"
     try {
       const value = window.localStorage.getItem(THEME_KEY)
-      if (value === "light" || value === "dark" || value === "system") stored = value
+      if (value === "light" || value === "dark") stored = value
     } catch {
-      // The system preference remains available when browser storage is restricted.
+      // The light default remains available when browser storage is restricted.
     }
     setPreference(stored)
     setFocusedIndex(options.findIndex((option) => option.value === stored))
     applyTheme(stored)
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)")
-    const onSystemChange = () => {
-      let currentPreference = "system"
-      try { currentPreference = window.localStorage.getItem(THEME_KEY) ?? "system" } catch { /* Use the system setting when storage is unavailable. */ }
-      if (currentPreference === "system") applyTheme("system")
-    }
-    media.addEventListener("change", onSystemChange)
-    return () => media.removeEventListener("change", onSystemChange)
   }, [])
 
   useEffect(() => {
@@ -95,7 +80,7 @@ export function ThemeToggle() {
     optionRefs.current[next]?.focus()
   }
 
-  const selected = options.find((option) => option.value === preference) ?? options[2]
+  const selected = options.find((option) => option.value === preference) ?? options[0]
   const TriggerIcon = selected.icon
 
   return (
