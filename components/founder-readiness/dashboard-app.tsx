@@ -9,6 +9,8 @@ import { GuidedDemoPage } from "./guided-demo-page"
 import { HumanDecisionPage } from "./human-decision-page"
 import { OverviewPage } from "./overview-page"
 import { ReadinessPage } from "./readiness-page"
+import { PerformanceOutcomesPage } from "./performance-outcomes-page"
+import { PeopleResourcesPage } from "./people-resources-page"
 import { EvidenceActivityPage } from "./evidence-activity-page"
 import { CapstoneShowcasePage } from "./capstone-showcase-page"
 import { mobileLinks, Sidebar, viewLabels } from "./sidebar"
@@ -27,7 +29,7 @@ export default function DashboardApp() {
 }
 
 function DashboardAppShell() {
-  const { selectedId, selectedDraft, selectInitiative } = useInitiativeWorkspace()
+  const { loaded, selectedId, selectedDraft, selectInitiative } = useInitiativeWorkspace()
   const [active, setActive] = useState<ViewId>("overview")
   const [search, setSearch] = useState("")
   const [currentStep, setCurrentStep] = useState(0)
@@ -222,7 +224,6 @@ function DashboardAppShell() {
   }
   const openReadiness = () => {
     setActive("readiness")
-    void refreshServices()
   }
   const navigateTo = (view: ViewId) => {
     setSearch("")
@@ -239,11 +240,13 @@ function DashboardAppShell() {
   const searchable = active === "overview" || active === "demo" || active === "showcase" || active === "evidence"
   const isRestaurantDemo = selectedId === CHEESECAKE_DEMO_ID
   const contextLabel = selectedDraft?.name ?? (isRestaurantDemo ? "The Cheesecake Factory — Demo Scenario" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical Capstone · Original Test Fixture" : "COMRADII Workspace")
-  const topbarContextLabel = selectedDraft ? "Local planning draft" : isRestaurantDemo ? "Illustrative demo" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical test fixture" : "Initiative planning"
-  const workspaceMode = selectedDraft ? "LOCAL PLANNING DRAFT" : isRestaurantDemo ? "ILLUSTRATIVE DEMO SCENARIO" : selectedId === TECHNICAL_FIXTURE_ID ? "TECHNICAL TEST FIXTURE" : "YOUR PLANNING WORKSPACE"
+  const topbarContextLabel = isRestaurantDemo ? "Editable illustrative sandbox" : selectedDraft ? "Local planning draft" : selectedId === TECHNICAL_FIXTURE_ID ? "Technical test fixture" : "Initiative planning"
+  const workspaceMode = isRestaurantDemo ? "FICTIONAL EXAMPLE SANDBOX" : selectedDraft ? "LOCAL PLANNING DRAFT" : selectedId === TECHNICAL_FIXTURE_ID ? "TECHNICAL TEST FIXTURE" : "YOUR PLANNING WORKSPACE"
   const searchPlaceholder = active === "overview" ? "Search overview..." : active === "demo" ? "Search demo steps..." : active === "showcase" ? "Search factory architecture..." : "Search API activity..."
 
-  const content = active === "overview" ? (
+  const content = !loaded ? (
+    <div className="panel" role="status" aria-live="polite">Restoring your local planning workspace…</div>
+  ) : active === "overview" ? (
     <OverviewPage
       onNavigate={navigateTo}
       onDemo={openDemo}
@@ -258,16 +261,11 @@ function DashboardAppShell() {
       actionsDisabled={busyAction !== null}
     />
   ) : active === "readiness" ? (
-    <ReadinessPage
-      healthRequest={healthRequest}
-      healthPayload={healthPayload}
-      configRequest={configRequest}
-      configPayload={configPayload}
-      onRefresh={() => { void refreshServices() }}
-      refreshing={busyAction === "checking"}
-      actionsDisabled={busyAction !== null}
-      onNavigate={navigateTo}
-    />
+    <ReadinessPage onNavigate={navigateTo} />
+  ) : active === "performance" ? (
+    <PerformanceOutcomesPage onNavigate={navigateTo} />
+  ) : active === "people" ? (
+    <PeopleResourcesPage onNavigate={navigateTo} />
   ) : active === "evidence" ? (
     <EvidenceActivityPage configRequest={configRequest} healthRequest={healthRequest} stepResults={stepResults} disposition={disposition} searchTerm={search} onNavigate={navigateTo} />
   ) : active === "showcase" && showCapstone ? (
@@ -335,7 +333,7 @@ function DashboardAppShell() {
         </nav>
         <div className="content-area">
           {content}
-          <footer className="main-footer"><span>© 2026 COMRADII <i>·</i> AI transformation planning</span>{["readiness", "evidence", "showcase", "demo"].includes(active) && <span><span className={`footer-status-dot ${healthRequest ? healthRequest.upstreamResponded ? healthRequest.ok ? "connected" : "response" : "disconnected" : "unchecked"}`} /> {footerStatus}</span>}</footer>
+          <footer className="main-footer"><span>© 2026 COMRADII <i>·</i> AI transformation planning</span>{["evidence", "showcase", "demo"].includes(active) && <span><span className={`footer-status-dot ${healthRequest ? healthRequest.upstreamResponded ? healthRequest.ok ? "connected" : "response" : "disconnected" : "unchecked"}`} /> {footerStatus}</span>}</footer>
         </div>
       </main>
       <FranklinChat pageId={active} />

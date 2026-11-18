@@ -1,15 +1,15 @@
 "use client"
 
-import { Activity, BookOpenCheck, BriefcaseBusiness, FileText, Gauge, LayoutDashboard, Network, ShieldCheck, UserRoundCheck, Workflow, type LucideIcon } from "lucide-react"
+import { BriefcaseBusiness, FileText, Gauge, LayoutDashboard, Network, ShieldCheck, UserRoundCheck, Users, Workflow, type LucideIcon } from "lucide-react"
 import type { ViewId } from "@/lib/founder-demo-data"
 
 export const businessLinks: { id: ViewId; label: string; icon: LucideIcon }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "F4", label: "AI Initiatives", icon: BriefcaseBusiness },
-  { id: "F6", label: "Performance & Outcomes", icon: Gauge },
+  { id: "performance", label: "Performance & Outcomes", icon: Gauge },
   { id: "readiness", label: "Readiness & Assurance", icon: ShieldCheck },
   { id: "decision", label: "Decisions & Actions", icon: UserRoundCheck },
-  { id: "F1", label: "People & Resources", icon: Activity },
+  { id: "people", label: "People & Resources", icon: Users },
   { id: "evidence", label: "Evidence & Activity", icon: FileText },
 ]
 
@@ -24,6 +24,8 @@ export const viewLabels: Record<ViewId, string> = {
   overview: "Overview",
   example: "The Cheesecake Factory demo",
   readiness: "Readiness & Assurance",
+  performance: "Performance & Outcomes",
+  people: "People & Resources",
   evidence: "Evidence & Activity",
   showcase: "Capstone Showcase",
   F4: "AI Initiatives",
