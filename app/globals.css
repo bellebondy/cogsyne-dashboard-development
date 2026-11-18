@@ -132,6 +132,7 @@ h2 { font-size: 15px; letter-spacing: -.25px; line-height: 1.35; margin: 3px 0 0
 h3 { color: #21374a; font-size: 15px; letter-spacing: -.25px; margin: 8px 0 4px; }
 .page-subtitle { color: #768592; font-size: 11.5px; margin: 0; line-height: 1.6; }
 .demo-chip { display: inline-flex; align-items: center; padding: 3px 6px; border: 1px solid #e6eeef; border-radius: 4px; color: #64827f; font-size: 8px; letter-spacing: .7px; font-weight: 700; background: #f5faf9; }
+.context-mode-badge { white-space: nowrap; font-size: 8px; }
 .button { border-radius: 6px; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 12px; font-size: 10.5px; font-weight: 600; cursor: pointer; transition: background .15s, border .15s; white-space: nowrap; }
 .button-dark { background: var(--navy); border: 1px solid var(--navy); color: white; }
 .button-dark:hover { background: #1d4757; }
@@ -1467,7 +1468,8 @@ html[data-theme="dark"] .claim-panel blockquote { color: var(--text-primary); }
   .home-path-card { min-height: 220px; }
 }
 @media (max-width: 620px) {
-  .mobile-demo-badge { display: none; }
+  .mobile-brand:has(.mobile-demo-badge) .mobile-brand-name { display: none; }
+  .mobile-demo-badge { white-space: nowrap; font-size: 6.5px; }
   .cheesecake-demo-page .detail-heading { align-items: stretch; flex-direction: column; gap: 12px; }
   .cheesecake-demo-page .detail-heading > .initiative-heading-actions { justify-content: flex-start; flex-wrap: wrap; }
   .customer-home-welcome { align-items: flex-start; flex-direction: column; gap: 12px; }
@@ -1540,6 +1542,10 @@ html[data-theme="dark"] .recharts-cartesian-axis-tick-value { fill: #b3b0c8; }
 .demo-explorer-option > svg { color: var(--purple); }
 .demo-explorer-option:hover, .demo-explorer-option:focus-visible { outline: none; color: var(--purple); background: var(--menu-hover); }
 .return-workspace-button { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; border: 0; border-radius: 8px; padding: 0 5px; color: var(--purple); background: transparent; cursor: pointer; font-size: 11px; font-weight: 600; white-space: nowrap; }
+@media (max-width: 620px) {
+  .mobile-brand:has(.mobile-demo-badge) .mobile-demo-badge { padding: 3px 4px; font-size: 6px; letter-spacing: .2px; }
+  .topbar:has(.mobile-brand .mobile-demo-badge) .return-workspace-button { font-size: 10px; }
+}
 .return-workspace-button:hover { color: var(--text-primary); background: var(--surface-soft); }
 .return-workspace-button svg { flex: 0 0 auto; }
 html[data-theme="dark"] .demo-explorer-trigger { border-color: var(--line); color: #d4d1e5; background: #202133; }

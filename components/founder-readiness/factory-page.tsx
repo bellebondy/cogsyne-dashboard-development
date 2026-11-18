@@ -1,17 +1,22 @@
 import { useState, type FormEvent } from "react"
 import { ArrowRight, CircleHelp, ShieldCheck, Sparkles } from "lucide-react"
-import { CHEESECAKE_DEMO_ID, TECHNICAL_FIXTURE_ID, demoScenario, getHumanDispositionLabel, type FactoryId, type HumanDisposition, type ViewId } from "@/lib/founder-demo-data"
+import { demoScenario, getHumanDispositionLabel, type FactoryId, type HumanDisposition, type ViewId } from "@/lib/founder-demo-data"
 import { useInitiativeWorkspace } from "@/lib/initiative-workspace"
 import { PerformanceScenarioChart } from "./performance-scenario-chart"
 import { DataSourceBadge, ScenarioMetric, SectionHeader } from "./shared"
 
 export function FactoryPage({ factoryId, disposition, onNavigate }: { factoryId: FactoryId; disposition: HumanDisposition | null; onNavigate: (id: ViewId) => void }) {
-  const { selectedDraft, selectedId } = useInitiativeWorkspace()
-  if (selectedId === CHEESECAKE_DEMO_ID && !selectedDraft) return <RestaurantPlanningPage factoryId={factoryId} onNavigate={onNavigate} />
-  if (factoryId === "F4") return <ProjectPage onNavigate={onNavigate} />
-  if (factoryId === "F6") return selectedDraft ? <DraftPerformancePage key={selectedDraft.id} /> : selectedId === TECHNICAL_FIXTURE_ID ? <PerformancePage onNavigate={onNavigate} /> : <NoSelectedInitiative section="Performance & Outcomes" onNavigate={onNavigate} />
-  if (factoryId === "F1") return selectedDraft ? <PeoplePlanningPage key={selectedDraft.id} /> : selectedId === TECHNICAL_FIXTURE_ID ? <PeopleAssurancePage disposition={disposition} onNavigate={onNavigate} /> : <NoSelectedInitiative section="People & Resources" onNavigate={onNavigate} />
-  return selectedId === TECHNICAL_FIXTURE_ID ? <TalentPage disposition={disposition} onNavigate={onNavigate} /> : <NoSelectedInitiative section="Talent & Resources" onNavigate={onNavigate} />
+  const { selectedDraft, isExampleMode, isCapstoneMode } = useInitiativeWorkspace()
+  if (isCapstoneMode) {
+    if (factoryId === "F4") return <ProjectPage onNavigate={onNavigate} />
+    if (factoryId === "F6") return <PerformancePage onNavigate={onNavigate} />
+    if (factoryId === "F1") return <PeopleAssurancePage disposition={disposition} onNavigate={onNavigate} />
+    return <TalentPage disposition={disposition} onNavigate={onNavigate} />
+  }
+  if (isExampleMode) return <RestaurantPlanningPage factoryId={factoryId} onNavigate={onNavigate} />
+  if (factoryId === "F6") return selectedDraft ? <DraftPerformancePage key={selectedDraft.id} /> : <NoSelectedInitiative section="Performance & Outcomes" onNavigate={onNavigate} />
+  if (factoryId === "F1") return selectedDraft ? <PeoplePlanningPage key={selectedDraft.id} /> : <NoSelectedInitiative section="People & Resources" onNavigate={onNavigate} />
+  return <NoSelectedInitiative section="Talent & Resources" onNavigate={onNavigate} />
 }
 
 function NoSelectedInitiative({ section, onNavigate }: { section: string; onNavigate: (id: ViewId) => void }) {
@@ -41,7 +46,7 @@ function RestaurantPlanningPage({ factoryId, onNavigate }: { factoryId: FactoryI
 function ProjectPage({ onNavigate }: { onNavigate: (id: ViewId) => void }) {
   return (
     <div className="page-stack">
-      <SectionHeader eyebrow="TECHNICAL CAPSTONE · ORIGINAL TEST FIXTURE" title="Case handling time reduction" description="This fixed technical test fixture is separate from the restaurant illustration and demonstrates the existing API workflow." action={<button className="button button-dark" onClick={() => onNavigate("F6")}>Review performance <ArrowRight size={15} /></button>} />
+      <SectionHeader eyebrow="TECHNICAL CAPSTONE · ORIGINAL TEST FIXTURE" title="Case handling time reduction" description="This fixed technical test fixture is separate from the restaurant illustration and demonstrates the existing API workflow." action={<button className="button button-dark" onClick={() => onNavigate("capstone-F6")}>Review performance <ArrowRight size={15} /></button>} />
       <section className="scenario-hero project-hero"><div><span className="overline">SIMULATED INITIATIVE</span><h2>Business objective</h2><p>{demoScenario.objective}</p></div><DataSourceBadge source="SIMULATED" /></section>
       <section className="metric-grid" aria-label="Project scenario measures">
         <ScenarioMetric label="Baseline" value={demoScenario.baselineMinutes} unit="min / case" detail="Starting point in the scenario fixture" />
@@ -56,7 +61,7 @@ function PerformancePage({ onNavigate }: { onNavigate: (id: ViewId) => void }) {
   const gap = demoScenario.observedMinutes - demoScenario.targetMinutes
   return (
     <div className="page-stack">
-      <SectionHeader eyebrow="TECHNICAL CAPSTONE · ORIGINAL TEST FIXTURE" title="Performance review" description="Compare the scenario observation against the initiative target. These values are simulated, not live telemetry." action={<button className="button button-dark" onClick={() => onNavigate("decision")}>Review finding <ArrowRight size={15} /></button>} />
+      <SectionHeader eyebrow="TECHNICAL CAPSTONE · ORIGINAL TEST FIXTURE" title="Performance review" description="Compare the scenario observation against the initiative target. These values are simulated, not live telemetry." action={<button className="button button-dark" onClick={() => onNavigate("capstone-decision")}>Review finding <ArrowRight size={15} /></button>} />
       <section className="metric-grid" aria-label="Simulated performance measures">
         <ScenarioMetric label="Baseline" value={demoScenario.baselineMinutes} unit="min / case" detail="Initiative scenario target" />
         <ScenarioMetric label="Target" value={demoScenario.targetMinutes} unit="min / case" detail="Initiative scenario target" />
@@ -116,7 +121,7 @@ function PeoplePlanningPage() {
 function PeopleAssurancePage({ disposition, onNavigate }: { disposition: HumanDisposition | null; onNavigate: (id: ViewId) => void }) {
   return (
     <div className="page-stack">
-      <SectionHeader eyebrow="PEOPLE & RESOURCES · DEMO SCENARIO" title="Workforce capability review" description="Review the scenario&apos;s qualification claim and see how talent recommendations are handled." action={<button className="button button-dark" onClick={() => onNavigate("F11")}>View talent recommendation <ArrowRight size={15} /></button>} />
+      <SectionHeader eyebrow="PEOPLE & RESOURCES · DEMO SCENARIO" title="Workforce capability review" description="Review the scenario&apos;s qualification claim and see how talent recommendations are handled." action={<button className="button button-dark" onClick={() => onNavigate("capstone-F11")}>View talent recommendation <ArrowRight size={15} /></button>} />
       <div className="scenario-two-column">
         <section className="panel panel-pad claim-panel"><div className="panel-heading"><div><div className="overline">SIMULATED QUALIFICATION CLAIM</div><h2>Claim under assessment</h2></div><DataSourceBadge source="SIMULATED" /></div><blockquote>{demoScenario.qualificationClaim}</blockquote><p className="panel-intro">This claim is provided as a scenario fixture. It is not a real person or team qualification.</p></section>
         <section className="panel panel-pad assessment-panel"><div className="panel-heading"><div><div className="overline">SIMULATED WORKFORCE REVIEW</div><h2>Assessment outcome</h2></div><span className="scenario-icon"><ShieldCheck size={18} /></span></div><p>{demoScenario.assessment}</p><div className="assessment-disposition"><span>Human decision</span><b>{getHumanDispositionLabel(disposition)}</b><DataSourceBadge source="SIMULATED" /></div></section>
