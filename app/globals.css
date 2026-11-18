@@ -1794,13 +1794,14 @@ html[data-theme="dark"] .franklin-send-button:disabled { color: #858198; backgro
 @keyframes franklin-gentle-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
 @keyframes franklin-typing { 0%, 60%, 100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
 @keyframes franklin-panel-in { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
-@media (max-width: 600px) {
-  .franklin-launcher-wrap { right: 16px; bottom: 16px; }
-  .franklin-launcher { width: 62px; height: 62px; }
-  .franklin-launcher > svg { width: 50px; height: 50px; }
-  .franklin-panel { right: 12px; bottom: 88px; width: calc(100vw - 24px); height: min(630px, calc(100dvh - 104px)); min-height: min(390px, calc(100dvh - 104px)); border-radius: 17px; }
+  @media (max-width: 600px) {
+  .franklin-launcher-wrap { right: 8px; bottom: 8px; }
+  .franklin-launcher { width: 44px; height: 44px; }
+  .franklin-launcher > svg { width: 36px; height: 36px; }
+  .franklin-launcher-spark { top: 4px; right: 4px; }
+  .franklin-panel { right: 12px; bottom: 64px; width: calc(100vw - 24px); height: min(630px, calc(100dvh - 80px)); min-height: min(390px, calc(100dvh - 80px)); border-radius: 17px; }
   .franklin-launcher-tooltip { display: none; }
-}
+  }
 @media (max-width: 380px) {
   .franklin-header { padding-right: 10px; padding-left: 12px; }
   .franklin-header-actions { gap: 0; }
