@@ -1897,16 +1897,22 @@ html[data-theme="dark"] .franklin-send-button:disabled { color: #858198; backgro
 .milestone-marker.planned { background: #b6a5f4; }
 .milestone-marker.in-progress { background: #e4b75f; }
 .milestone-marker.completed { background: #45b4a3; }
-.planning-snapshot-panel { padding: 18px; }
+.readiness-snapshot-panel { display: flex; flex-direction: column; gap: 12px; padding: 18px; overflow: visible; }
+.readiness-snapshot-panel .panel-heading { align-items: flex-start; }
+.readiness-snapshot-panel .panel-heading > div { min-width: 0; }
+.readiness-snapshot-panel .panel-heading h2 { overflow-wrap: anywhere; }
+.readiness-snapshot-panel .panel-intro { margin: 0; line-height: 1.5; overflow-wrap: anywhere; }
 .planning-snapshot-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
-.planning-snapshot-metrics > div { display: flex; flex-direction: column; gap: 5px; border: 1px solid var(--line); border-radius: 9px; padding: 11px; background: var(--surface-soft); }
-.planning-snapshot-metrics strong { color: var(--text-primary); font-size: 18px; letter-spacing: -.4px; }
-.planning-snapshot-metrics span { color: var(--text-secondary); font-size: 9px; }
-.planning-progress-track { height: 7px; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, var(--purple) 11%, var(--surface)); }
+.planning-snapshot-metrics > div { display: flex; flex-direction: column; gap: 5px; min-width: 0; border: 1px solid var(--line); border-radius: 9px; padding: 11px; background: var(--surface-soft); }
+.planning-snapshot-metrics strong { color: var(--text-primary); font-size: 18px; letter-spacing: -.4px; overflow-wrap: anywhere; }
+.planning-snapshot-metrics span { color: var(--text-secondary); font-size: 9px; line-height: 1.4; overflow-wrap: anywhere; }
+.planning-progress-track { width: 100%; height: 7px; flex: 0 0 7px; overflow: hidden; border-radius: 99px; background: color-mix(in srgb, var(--purple) 11%, var(--surface)); }
 .planning-progress-track > span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--purple), var(--teal)); transition: width .2s ease; }
-.readiness-snapshot-foot { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; color: var(--text-secondary); font-size: 9px; line-height: 1.5; }
-.readiness-start-note { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; border: 1px solid #e6e1fa; border-radius: 8px; padding: 10px; color: var(--text-secondary); background: var(--surface-soft); font-size: 9px; line-height: 1.5; }
+.readiness-snapshot-foot { display: flex; flex-direction: column; gap: 4px; margin: 0; color: var(--text-secondary); font-size: 9px; line-height: 1.5; overflow-wrap: anywhere; }
+.readiness-snapshot-foot > span { min-width: 0; overflow-wrap: anywhere; }
+.readiness-start-note { display: flex; align-items: flex-start; gap: 8px; margin: 0; border: 1px solid #e6e1fa; border-radius: 8px; padding: 10px; color: var(--text-secondary); background: var(--surface-soft); font-size: 9px; line-height: 1.5; }
 .readiness-start-note svg { flex: 0 0 auto; color: var(--purple); }
+.readiness-start-note span { min-width: 0; overflow-wrap: anywhere; }
 .readiness-questionnaire-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .readiness-questionnaire-heading h2 { font-size: 16px; }
 .readiness-questionnaire-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
