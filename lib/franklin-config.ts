@@ -38,4 +38,3 @@ export function getFranklinSystemPrompt(pageId: string) {
     : FRANKLIN_PAGE_CONTEXT.overview
   return `${applicationKnowledge}\n\nCurrent page context: ${pageContext}\n\nThis context helps you tailor an explanation; it is not an assessment result and does not grant access to other page data.`
 }
-
