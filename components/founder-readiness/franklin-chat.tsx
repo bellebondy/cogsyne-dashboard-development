@@ -39,7 +39,7 @@ const pageIntros: Record<string, string> = {
 }
 
 const starterPrompts = [
-  "What does COMRADII do?",
+  "What does Cogsyne AI do?",
   "Help me plan an AI initiative.",
   "What should I evaluate before using AI?",
 ]

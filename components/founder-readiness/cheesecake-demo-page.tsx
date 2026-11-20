@@ -9,7 +9,7 @@ import { SectionHeader } from "./shared"
 const stages = [
   { title: "The business problem", eyebrow: "A familiar operating challenge", icon: ClipboardList },
   { title: "The proposed AI", eyebrow: "A possible use of forecasting", icon: Gauge },
-  { title: "What COMRADII would evaluate", eyebrow: "12 connected assurance perspectives", icon: ShieldCheck },
+  { title: "What Cogsyne AI would evaluate", eyebrow: "12 connected assurance perspectives", icon: ShieldCheck },
   { title: "Information to gather", eyebrow: "Evidence needed before any conclusion", icon: ClipboardList },
   { title: "Potential risks and gaps", eyebrow: "Questions to investigate, not findings", icon: BadgeInfo },
   { title: "Human decisions", eyebrow: "People stay accountable", icon: Users },
@@ -66,7 +66,7 @@ export function CheesecakeDemoPage({ onNavigate }: { onNavigate: (id: ViewId) =>
       <SectionHeader
         eyebrow="ILLUSTRATIVE DEMO SCENARIO · NOT AN ASSESSMENT"
         title="The Cheesecake Factory — Illustrative Demo Workspace"
-        description="Explore how an organization might plan an AI transformation, what COMRADII could help evaluate, and which decisions remain with people."
+        description="Explore how an organization might plan an AI transformation, what Cogsyne AI could help evaluate, and which decisions remain with people."
         action={<div className="initiative-heading-actions"><button className="button button-outline" onClick={() => { if (window.confirm("Reset this local sandbox to the original fictional example? Your sandbox edits will be replaced.")) resetExample() }}><RotateCcw size={14} aria-hidden="true" />Reset Example</button><button className="button button-outline" onClick={() => onNavigate("F4")}><ArrowLeft size={14} aria-hidden="true" />Back to initiatives</button></div>}
       />
 
@@ -113,7 +113,7 @@ export function CheesecakeDemoPage({ onNavigate }: { onNavigate: (id: ViewId) =>
           <p className="scenario-note">These are examples of information that might be considered, not confirmed data sources or current systems used by the company.</p>
         </div>}
         {activeStage === 2 && <div className="guided-demo-copy-block">
-          <p>COMRADII's factory architecture is designed to help an organization look at an AI initiative from connected perspectives. These are illustrative assessment questions, not completed factory assessments, ratings, certifications, or approved decisions.</p>
+          <p>Cogsyne AI&apos;s factory architecture is designed to help an organization look at an AI initiative from connected perspectives. These are illustrative assessment questions, not completed factory assessments, ratings, certifications, or approved decisions.</p>
           <div className="factory-question-grid">{factoryQuestions.map((item) => <article className="factory-question-card" key={item.id}>
             <div className="factory-question-heading"><span>{item.id}</span><strong>{item.name}</strong></div>
             <p>{item.question}</p><small>{item.detail}</small>
