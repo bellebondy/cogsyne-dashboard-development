@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react"
 import { ArrowUp, PanelTopClose, RotateCcw, X } from "lucide-react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import type { ViewId } from "@/lib/founder-demo-data"
 import { FranklinAvatar } from "./franklin-avatar"
 import { useInitiativeWorkspace } from "@/lib/initiative-workspace"
@@ -73,7 +75,7 @@ function readSessionMessages(): ChatMessage[] {
 function friendlyFailure(status?: number) {
   if (status === 429) return "I’ve reached a short-term message limit. Please wait a moment and try again."
   if (status === 413) return "That conversation is a bit long to send. Please clear it or start a new topic."
-  return "I couldn’t reach the AI service just now, so I haven’t generated an answer. Please try again in a moment. If this continues, ask your workspace administrator to check the AI Gateway connection."
+  return "Franklin couldn't connect to OpenAI. Please check the API configuration or try again."
 }
 
 export function FranklinChat({ pageId }: { pageId: ViewId }) {
@@ -184,7 +186,7 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
       while (true) {
         const { done, value } = await reader.read()
         bufferedLine += decoder.decode(value, { stream: !done })
-        const lines = bufferedLine.split("\\n")
+        const lines = bufferedLine.split("\n")
         bufferedLine = lines.pop() ?? ""
         for (const line of lines) handleStreamLine(line)
         if (done) break
@@ -279,15 +281,21 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
                 {messages.map((message, index) => (
                   <div className={`franklin-message-row ${message.role === "user" ? "from-user" : "from-franklin"}`} key={`${index}-${message.role}`}>
                     {message.role === "assistant" && <span className="franklin-message-avatar"><FranklinAvatar /></span>}
-                    <p className="franklin-message-bubble">{message.content}</p>
+                    {message.role === "assistant" ? (
+                      <div className="franklin-message-bubble franklin-markdown">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="franklin-message-bubble">{message.content}</p>
+                    )}
                   </div>
                 ))}
                 {isSending && (
                   <div className="franklin-message-row from-franklin" aria-label="Franklin is responding">
                     <span className="franklin-message-avatar"><FranklinAvatar /></span>
-                    <p className="franklin-message-bubble franklin-live-bubble">
-                      {streamingText || <span className="franklin-typing" aria-label="Franklin is thinking"><i /><i /><i /></span>}
-                    </p>
+                    <div className="franklin-message-bubble franklin-live-bubble franklin-markdown">
+                      {streamingText ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{streamingText}</ReactMarkdown> : <span className="franklin-typing" aria-label="Franklin is thinking"><i /><i /><i /></span>}
+                    </div>
                   </div>
                 )}
               </div>
@@ -314,7 +322,7 @@ export function FranklinChat({ pageId }: { pageId: ViewId }) {
                 <ArrowUp aria-hidden="true" />
               </button>
             </div>
-            <p id="franklin-disclosure" className="franklin-disclosure">Messages go to AI Gateway. Initiative details are excluded unless you check the box above and send a message. AI Gateway usage may incur charges.</p>
+            <p id="franklin-disclosure" className="franklin-disclosure">Messages are processed by OpenAI. Initiative details are shared only if you select the checkbox. AI usage may incur charges.</p>
           </form>
         </section>
       )}
