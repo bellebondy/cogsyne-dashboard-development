@@ -42,7 +42,7 @@ function DashboardAppShell() {
   const capstoneReturnViewRef = useRef<ViewId>("overview")
   const capstoneReturnModeRef = useRef(mode === "example" ? "example" : "customer")
   const [disposition, setDisposition] = useState<HumanDisposition | null>(null)
-  const [runMessage, setRunMessage] = useState("Ready to connect to the COMRADII demo backend.")
+  const [runMessage, setRunMessage] = useState("Ready to connect to the Cogsyne AI demo backend.")
   const [configRequest, setConfigRequest] = useState<ApiRequestResult | null>(null)
   const [healthRequest, setHealthRequest] = useState<ApiRequestResult | null>(null)
   const [configPayload, setConfigPayload] = useState<unknown>(null)
@@ -284,13 +284,13 @@ function DashboardAppShell() {
     ? "Technical Capstone · Original Test Fixture"
     : isRestaurantDemo
       ? `${selectedDraft?.name ?? "The Cheesecake Factory"} · Fictional Demo`
-      : customerDraft?.name ?? "COMRADII Workspace"
+      : customerDraft?.name ?? "Cogsyne AI Workspace"
   const topbarContextLabel = isCapstoneMode ? "Technical test fixture" : isRestaurantDemo ? "Editable illustrative sandbox" : customerDraft ? "Local planning draft" : "Initiative planning"
   const workspaceMode = isCapstoneMode ? "TECHNICAL TEST FIXTURE" : isRestaurantDemo ? "FICTIONAL EXAMPLE SANDBOX" : customerDraft ? "LOCAL PLANNING DRAFT" : "YOUR PLANNING WORKSPACE"
-  const sidebarWorkspaceName = isCapstoneMode ? "Technical Capstone" : isRestaurantDemo ? "The Cheesecake Factory Demo" : customerDraft?.name ?? "COMRADII Workspace"
+  const sidebarWorkspaceName = isCapstoneMode ? "Technical Capstone" : isRestaurantDemo ? "The Cheesecake Factory Demo" : customerDraft?.name ?? "Cogsyne AI Workspace"
   const sidebarWorkspaceMode = workspaceMode
   const sidebarDraft = isRestaurantDemo || isCapstoneMode ? null : customerDraft
-  const sidebarWorkspaceInitial = isCapstoneMode ? "T" : (sidebarDraft?.name ?? "COMRADII").slice(0, 1).toUpperCase()
+  const sidebarWorkspaceInitial = isCapstoneMode ? "T" : (sidebarDraft?.name ?? "Cogsyne AI").slice(0, 1).toUpperCase()
   const searchPlaceholder = active === "overview" ? "Search overview..." : active === "demo" ? "Search demo steps..." : active === "showcase" ? "Search factory architecture..." : "Search API activity..."
   const capstoneFactoryId = active.startsWith("capstone-F") ? active.slice("capstone-".length) as FactoryId : null
 
@@ -377,7 +377,7 @@ function DashboardAppShell() {
       <Sidebar active={active} onNavigate={navigateTo} showCapstone={showCapstone} workspaceName={sidebarWorkspaceName} workspaceMode={sidebarWorkspaceMode} workspaceInitial={sidebarWorkspaceInitial} />
       <main className="main-area">
         <header className="topbar">
-          <div className="mobile-brand"><span className="brand-mark"><span /><span /><span /></span><span className="mobile-brand-name">COMRADII</span>{isRestaurantDemo && <span className="mobile-demo-badge">FICTIONAL DEMO</span>}{isCapstoneMode && <span className="mobile-demo-badge">TECHNICAL FIXTURE</span>}</div>
+          <div className="mobile-brand"><img className="mobile-brand-logo" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/T0BV109BKD5-U0C0WMXQC7J-1e2f846e647e-512-KmW9ZBRBRMCK6etabAZBtQcQwgCUiX.png" alt="" aria-hidden="true" width={512} height={512} /><span className="mobile-brand-name">Cogsyne AI</span>{isRestaurantDemo && <span className="mobile-demo-badge">FICTIONAL DEMO</span>}{isCapstoneMode && <span className="mobile-demo-badge">TECHNICAL FIXTURE</span>}</div>
           <div className="breadcrumb"><span>{contextLabel}</span>{isRestaurantDemo && <span className="context-mode-badge demo-chip">FICTIONAL DEMO</span>}{isCapstoneMode && <span className="context-mode-badge demo-chip">TECHNICAL FIXTURE</span>}<span className="breadcrumb-slash">/</span><b>{viewLabels[active]}</b></div>
           <div className="topbar-actions">
             {searchable ? <label className="search-field"><Search size={16} aria-hidden="true" /><input aria-label="Search the current page" placeholder={searchPlaceholder} value={search} onChange={(event) => setSearch(event.target.value)} />{search && <button type="button" className="search-clear" onClick={() => setSearch("")} aria-label="Clear search"><X size={13} aria-hidden="true" /></button>}</label> : <span className="topbar-workspace-label">{topbarContextLabel}</span>}
@@ -390,7 +390,7 @@ function DashboardAppShell() {
         </nav>
         <div className="content-area">
           {content}
-          <footer className="main-footer"><span>© 2026 COMRADII <i>·</i> AI transformation planning</span>{["evidence", "capstone-evidence", "showcase", "demo"].includes(active) && <span><span className={`footer-status-dot ${healthRequest ? healthRequest.upstreamResponded ? healthRequest.ok ? "connected" : "response" : "disconnected" : "unchecked"}`} /> {footerStatus}</span>}</footer>
+          <footer className="main-footer"><span>© 2026 Cogsyne AI <i>·</i> AI transformation planning</span>{["evidence", "capstone-evidence", "showcase", "demo"].includes(active) && <span><span className={`footer-status-dot ${healthRequest ? healthRequest.upstreamResponded ? healthRequest.ok ? "connected" : "response" : "disconnected" : "unchecked"}`} /> {footerStatus}</span>}</footer>
         </div>
       </main>
       <FranklinChat pageId={active} />

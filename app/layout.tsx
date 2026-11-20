@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'COMRADII — AI Transformation Planning',
-  description: 'Plan AI initiatives, understand what needs review, organize evidence, and make informed decisions with human oversight.',
+  title: 'Cogsyne AI — AI Transformation Assurance',
+  description: 'Plan AI initiatives, organize assurance evidence, and make informed decisions with Cogsyne AI.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -28,8 +28,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   colorScheme: 'light dark',
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f6f5fc' },
-    { media: '(prefers-color-scheme: dark)', color: '#11121c' },
+    { media: '(prefers-color-scheme: light)', color: '#f4f8fb' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b1728' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -41,7 +41,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="bg-background" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: "try{var p=localStorage.getItem('comradii.theme');if(p!=='dark')p='light';document.documentElement.dataset.theme=p;document.documentElement.style.colorScheme=p}catch(e){document.documentElement.dataset.theme='light';document.documentElement.style.colorScheme='light'}" }} />
       </head>

@@ -41,7 +41,7 @@ export function CapstoneShowcasePage({ onNavigate, stepResults, healthRequest, h
     <div className="page-stack capstone-page">
       <div className="business-page-heading capstone-heading">
         <div>
-          <div className="overline">COMRADII · UNIVERSITY CAPSTONE</div>
+          <div className="overline">Cogsyne AI · UNIVERSITY CAPSTONE</div>
           <h1>Capstone Showcase</h1>
           <p className="page-subtitle">An initial technical implementation of the AI Transformation Assurance vision—not a completed production platform.</p>
         </div>
@@ -53,7 +53,7 @@ export function CapstoneShowcasePage({ onNavigate, stepResults, healthRequest, h
         <div className="showcase-hero-copy">
           <span className="overline">PROJECT OVERVIEW</span>
           <h2>From business objectives to evidence-informed decisions.</h2>
-          <p>COMRADII is designed to help organizations plan, evaluate, and monitor AI transformation. This capstone demonstrates an early, bounded workflow across four factory services, with a human decision point between performance review and downstream assessment.</p>
+          <p>Cogsyne AI is designed to help organizations plan, evaluate, and monitor AI transformation. This capstone demonstrates an early, bounded workflow across four factory services, with a human decision point between performance review and downstream assessment.</p>
         </div>
         <button className="button button-dark" onClick={() => onNavigate("demo")}>Open five-step demo <ArrowRight size={15} aria-hidden="true" /></button>
       </section>
@@ -76,7 +76,7 @@ export function CapstoneShowcasePage({ onNavigate, stepResults, healthRequest, h
           })}
           {visibleArchitecture.length === 0 && <div className="empty-search"><CircleHelp size={16} aria-hidden="true" />No factory responsibilities match “{searchTerm}”.</div>}
         </div>
-        <div className="comradii-note"><CircleHelp size={16} aria-hidden="true" /><p><strong>COMRADII is decision intelligence—not Factory 13.</strong> It may provide recommendations; it is not an autonomous decision authority.</p></div>
+        <div className="comradii-note"><CircleHelp size={16} aria-hidden="true" /><p><strong>Cogsyne AI is decision intelligence—not Factory 13.</strong> It may provide recommendations; it is not an autonomous decision authority.</p></div>
       </section>
 
       <section className="panel showcase-workflow-panel">

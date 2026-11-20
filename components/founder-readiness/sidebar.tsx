@@ -58,9 +58,8 @@ function NavigationLinks({ links, active, onNavigate }: { links: typeof business
 export function Sidebar({ active, onNavigate, showCapstone, workspaceName, workspaceMode, workspaceInitial }: { active: ViewId; onNavigate: (id: ViewId) => void; showCapstone: boolean; workspaceName: string; workspaceMode: string; workspaceInitial: string }) {
   return (
     <aside className="sidebar">
-      <button className="brand-lockup" onClick={() => onNavigate("overview")} aria-label="COMRADII home">
-        <span className="brand-mark"><span /><span /><span /></span>
-        <span className="brand-name">COMRADII</span>
+      <button className="brand-lockup" onClick={() => onNavigate("overview")} aria-label="Cogsyne AI home">
+        <img className="brand-logo" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/T0BV109BKD5-U0C0WMXQC7J-1e2f846e647e-512-KmW9ZBRBRMCK6etabAZBtQcQwgCUiX.png" alt="Cogsyne AI — AI Transformation Assurance" width={512} height={512} />
       </button>
       <div className="workspace-switcher" aria-label={`Current workspace: ${workspaceName}`}>
         <span className="workspace-avatar" aria-hidden="true">{workspaceInitial}</span>
