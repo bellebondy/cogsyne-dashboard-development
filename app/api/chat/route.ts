@@ -118,7 +118,7 @@ export async function POST(request: Request) {
       onError({ error }) {
         const message = error instanceof Error ? error.message : ""
         gatewayError = /valid credit card|billing|payment method/i.test(message)
-          ? "Franklin’s AI is not active yet. A COMRADII Vercel team owner needs to enable AI Gateway billing before model replies can work. No AI answer was generated."
+          ? "Franklin’s AI is not active yet. A Cogsyne AI Vercel team owner needs to enable AI Gateway billing before model replies can work. No AI answer was generated."
           : "Franklin couldn’t reach the AI service, so no answer was generated. Please try again later or ask your workspace administrator to check the AI Gateway connection."
         console.error("[Franklin] AI Gateway request failed.")
       },
