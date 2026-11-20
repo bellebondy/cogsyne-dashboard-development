@@ -2065,3 +2065,26 @@ html[data-theme="dark"] .content-area .planning-progress-track { background: #2e
   .planning-item-actions select { flex: 1; }
   .scenario-summary-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+
+/* Franklin: keep the conversation scrollable and make Markdown readable. */
+.franklin-transcript { min-height: 0; scroll-padding-bottom: 16px; }
+.franklin-header, .franklin-composer { flex-shrink: 0; }
+.franklin-markdown { white-space: normal; min-width: 0; }
+.franklin-markdown p { margin: 0 0 0.6em; }
+.franklin-markdown p:last-child { margin-bottom: 0; }
+.franklin-markdown ul, .franklin-markdown ol { margin: 0.45em 0 0.7em; padding-left: 1.35em; }
+.franklin-markdown li { margin: 0.2em 0; }
+.franklin-markdown li > p { margin: 0; }
+.franklin-markdown strong { font-weight: 700; }
+.franklin-markdown h1, .franklin-markdown h2, .franklin-markdown h3 { font-weight: 700; line-height: 1.35; margin: 0.8em 0 0.35em; }
+.franklin-markdown h1:first-child, .franklin-markdown h2:first-child, .franklin-markdown h3:first-child { margin-top: 0; }
+.franklin-markdown h1 { font-size: 1.25em; }
+.franklin-markdown h2 { font-size: 1.17em; }
+.franklin-markdown h3 { font-size: 1.08em; }
+.franklin-markdown code { padding: 0.06em 0.25em; border-radius: 4px; background: rgba(125,110,190,0.1); overflow-wrap: anywhere; }
+.franklin-markdown pre { overflow-x: auto; max-width: 100%; padding: 0.6em; border-radius: 7px; background: rgba(125,110,190,0.1); }
+.franklin-markdown pre code { padding: 0; background: none; }
+.franklin-markdown a { text-decoration: underline; }
+.franklin-markdown table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
+.franklin-markdown th, .franklin-markdown td { padding: 0.3em 0.45em; border: 1px solid var(--franklin-line); }
